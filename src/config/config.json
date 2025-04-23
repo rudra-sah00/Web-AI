@@ -1,0 +1,24 @@
+{
+  "ollamaModels": [
+    {
+      "id": "qwen:0.5b",
+      "name": "Qwen 2.5 (0.5B)",
+      "description": "Efficient small language model from Alibaba",
+      "parameters": {
+        "temperature": 0.9,
+        "top_p": 0.5,
+        "max_tokens": 4070
+      },
+      "installed": true
+    }
+  ],
+  "defaultSettings": {
+    "apiEndpoint": "http://localhost:11434",
+    "defaultModel": "qwen:0.5b",
+    "chatSettings": {
+      "streamResponses": true,
+      "saveHistory": true,
+      "maxHistoryItems": 100
+    }
+  }
+}

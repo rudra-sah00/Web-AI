@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# chat history files
+/data/chats/
+/data/chat-index.json
+
+# Keep configuration files
+!/data/runtime-config.json
+!/src/config/config.json
