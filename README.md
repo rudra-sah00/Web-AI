@@ -2,7 +2,7 @@
 
 A modern web interface for interacting with the [Ollama](https://ollama.ai/) API. This application provides a user-friendly way to manage, configure, and chat with AI models running through Ollama.
 
-![Ollama AI Web Interface](https://github.com/ollama/ollama/raw/main/docs/ollama.png)
+![Ollama AI Web Interface](https://github.com/ollama/ollama/assets/3325447/0d0b44e2-8f4a-4e99-9b52-a5c1c741c8f7)
 
 ## Features
 
@@ -26,7 +26,7 @@ Before you begin, ensure you have the following installed:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/ollama-ai.git
+git clone https://github.com/rudra-sah00/ollama-ai.git
 cd ollama-ai
 ```
 
