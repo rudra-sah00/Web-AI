@@ -73,69 +73,7 @@ class ModelSearchService {
    */
   private getStaticModelList(): OllamaLibraryModel[] {
     return [
-      {
-        name: "llama3",
-        description: "Meta's newest open-source LLM, known for outstanding instruction following and reasoning",
-        tags: ["latest", "recommended", "general"],
-        parameterCount: "8B",
-        size: "4.7 GB"
-      },
-      {
-        name: "llama3:8b",
-        description: "Meta's newest open-source LLM (8B version)",
-        tags: ["latest", "general"],
-        parameterCount: "8B",
-        size: "4.7 GB"
-      },
-      {
-        name: "llama3:70b",
-        description: "Meta's newest and most powerful open-source LLM",
-        tags: ["latest", "powerful"],
-        parameterCount: "70B",
-        size: "39 GB"
-      },
-      {
-        name: "mistral",
-        description: "Mistral 7B is a strong base model with great performance",
-        tags: ["general"],
-        parameterCount: "7B",
-        size: "4.1 GB"
-      },
-      {
-        name: "mistral:instruct",
-        description: "Mistral with instruction tuning for better task completion",
-        tags: ["instruction", "recommended"],
-        parameterCount: "7B",
-        size: "4.1 GB"
-      },
-      {
-        name: "codellama",
-        description: "Code-specialized model for programming tasks",
-        tags: ["code", "programming"],
-        parameterCount: "7B",
-        size: "3.8 GB"
-      },
-      {
-        name: "codellama:13b",
-        description: "Larger, more capable code-specialized model",
-        tags: ["code", "programming"],
-        parameterCount: "13B",
-        size: "7.3 GB"
-      },
-      {
-        name: "codellama:34b",
-        description: "Most powerful code model in the CodeLlama family",
-        tags: ["code", "programming"],
-        parameterCount: "34B",
-        size: "19 GB"
-      },
-      {
-        name: "llama2",
-        description: "Meta's previous generation general purpose LLM",
-        tags: ["general"],
-        parameterCount: "7B",
-        size: "3.8 GB"
-      },
+      
       {
         name: "qwen:0.5b",
         description: "Efficient small language model from Alibaba",
@@ -144,74 +82,11 @@ class ModelSearchService {
         size: "394 MB"
       },
       {
-        name: "qwen:1.5b",
-        description: "Small but capable language model from Alibaba",
-        tags: ["small", "efficient"],
-        parameterCount: "1.5B",
-        size: "792 MB"
-      },
-      {
-        name: "qwen:4b",
-        description: "Mid-sized language model from Alibaba",
-        tags: ["general"],
-        parameterCount: "4B",
-        size: "2.4 GB"
-      },
-      {
-        name: "qwen:7b",
-        description: "Versatile language model from Alibaba",
-        tags: ["general", "recommended"],
-        parameterCount: "7B",
-        size: "3.9 GB"
-      },
-      {
-        name: "qwen:14b",
-        description: "Powerful general purpose language model from Alibaba",
-        tags: ["powerful"],
-        parameterCount: "14B",
-        size: "7.8 GB"
-      },
-      {
-        name: "phi3:3.8b",
-        description: "Microsoft's newest small language model with strong reasoning",
-        tags: ["latest", "small", "reasoning"],
-        parameterCount: "3.8B",
-        size: "2.2 GB"
-      },
-      {
-        name: "gemma:2b",
-        description: "Google's lightweight model for various tasks",
-        tags: ["small"],
-        parameterCount: "2B",
-        size: "1.4 GB"
-      },
-      {
-        name: "gemma:7b",
-        description: "Google's versatile model for complex reasoning",
-        tags: ["general"],
-        parameterCount: "7B",
-        size: "4.8 GB"
-      },
-      {
-        name: "orca-mini",
-        description: "Smaller model with good performance on limited hardware",
-        tags: ["small", "efficient"],
-        parameterCount: "3B",
-        size: "1.8 GB"
-      },
-      {
-        name: "neural-chat",
-        description: "Intel's optimized chat model based on Mistral",
-        tags: ["chat"],
-        parameterCount: "7B",
-        size: "4.1 GB"
-      },
-      {
-        name: "vicuna",
-        description: "Fine-tuned LLaMA model optimized for conversations",
-        tags: ["chat"],
-        parameterCount: "7B",
-        size: "3.8 GB"
+        name: "gemma3:4b-it-qat",
+        description: "Vision Model",
+        tags: ["smaall", "efficient"],
+        parameterCount: "4b",
+        size: "4Gb"
       }
     ];
   }
