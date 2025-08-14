@@ -250,6 +250,271 @@ class OllamaService {
       };
     }
   }
+
+  /**
+   * Get model information including size, parameters, etc.
+   */
+  async getModelInfo(name: string): Promise<any> {
+    try {
+      const response = await fetch(`${this.apiUrl}/api/show`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name }),
+      });
+
+      if (response.ok) {
+        return await response.json();
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error('Error getting model info:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Create a custom model from a Modelfile
+   */
+  async createModel(name: string, modelfile: string): Promise<StatusResponse> {
+    try {
+      const response = await fetch(`${this.apiUrl}/api/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, modelfile }),
+      });
+
+      if (response.ok) {
+        return {
+          status: 'success',
+          message: `Custom model ${name} created successfully`
+        };
+      } else {
+        const errorText = await response.text();
+        return {
+          status: 'error',
+          message: `Error creating model: ${errorText}`
+        };
+      }
+    } catch (error) {
+      return {
+        status: 'error',
+        message: `Network error creating model: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
+  }
+
+  /**
+   * Copy a model with a new name
+   */
+  async copyModel(source: string, destination: string): Promise<StatusResponse> {
+    try {
+      const response = await fetch(`${this.apiUrl}/api/copy`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ source, destination }),
+      });
+
+      if (response.ok) {
+        return {
+          status: 'success',
+          message: `Model copied from ${source} to ${destination}`
+        };
+      } else {
+        const errorText = await response.text();
+        return {
+          status: 'error',
+          message: `Error copying model: ${errorText}`
+        };
+      }
+    } catch (error) {
+      return {
+        status: 'error',
+        message: `Network error copying model: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
+  }
+
+  /**
+   * Push a model to a registry
+   */
+  async pushModel(name: string): Promise<StatusResponse> {
+    try {
+      const response = await fetch(`${this.apiUrl}/api/push`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name }),
+      });
+
+      if (response.ok) {
+        return {
+          status: 'success',
+          message: `Model ${name} pushed successfully`
+        };
+      } else {
+        const errorText = await response.text();
+        return {
+          status: 'error',
+          message: `Error pushing model: ${errorText}`
+        };
+      }
+    } catch (error) {
+      return {
+        status: 'error',
+        message: `Network error pushing model: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
+  }
+
+  /**
+   * Get embeddings for text using a model
+   */
+  async getEmbeddings(model: string, prompt: string): Promise<number[] | null> {
+    try {
+      const response = await fetch(`${this.apiUrl}/api/embeddings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ model, prompt }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.embedding;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error('Error getting embeddings:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get available parameter options for fine-tuning
+   */
+  getAvailableParameters(): Array<{
+    key: string;
+    name: string;
+    description: string;
+    type: 'number' | 'boolean' | 'string';
+    min?: number;
+    max?: number;
+    step?: number;
+    default: any;
+  }> {
+    return [
+      {
+        key: 'temperature',
+        name: 'Temperature',
+        description: 'Controls randomness in generation. Higher values make output more random.',
+        type: 'number',
+        min: 0,
+        max: 2,
+        step: 0.1,
+        default: 0.8
+      },
+      {
+        key: 'top_p',
+        name: 'Top P',
+        description: 'Nucleus sampling parameter. Controls diversity via probability mass.',
+        type: 'number',
+        min: 0,
+        max: 1,
+        step: 0.05,
+        default: 0.9
+      },
+      {
+        key: 'top_k',
+        name: 'Top K',
+        description: 'Limits sampling to top K tokens.',
+        type: 'number',
+        min: 1,
+        max: 100,
+        step: 1,
+        default: 40
+      },
+      {
+        key: 'repeat_penalty',
+        name: 'Repeat Penalty',
+        description: 'Penalizes repetition in generated text.',
+        type: 'number',
+        min: 0.5,
+        max: 2,
+        step: 0.1,
+        default: 1.1
+      },
+      {
+        key: 'num_predict',
+        name: 'Max Tokens',
+        description: 'Maximum number of tokens to generate.',
+        type: 'number',
+        min: 1,
+        max: 4096,
+        step: 1,
+        default: 512
+      },
+      {
+        key: 'num_ctx',
+        name: 'Context Length',
+        description: 'Size of the context window.',
+        type: 'number',
+        min: 512,
+        max: 32768,
+        step: 512,
+        default: 2048
+      },
+      {
+        key: 'mirostat',
+        name: 'Mirostat',
+        description: 'Enable Mirostat sampling (0=disabled, 1=v1, 2=v2).',
+        type: 'number',
+        min: 0,
+        max: 2,
+        step: 1,
+        default: 0
+      },
+      {
+        key: 'mirostat_eta',
+        name: 'Mirostat Eta',
+        description: 'Learning rate for Mirostat algorithm.',
+        type: 'number',
+        min: 0.01,
+        max: 1,
+        step: 0.01,
+        default: 0.1
+      },
+      {
+        key: 'mirostat_tau',
+        name: 'Mirostat Tau',
+        description: 'Target entropy for Mirostat algorithm.',
+        type: 'number',
+        min: 0.1,
+        max: 10,
+        step: 0.1,
+        default: 5.0
+      },
+      {
+        key: 'num_thread',
+        name: 'Thread Count',
+        description: 'Number of threads to use for generation.',
+        type: 'number',
+        min: 1,
+        max: 32,
+        step: 1,
+        default: 8
+      }
+    ];
+  }
 }
 
 // Create a singleton instance

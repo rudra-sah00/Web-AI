@@ -15,9 +15,6 @@ import {
   Loader2,
   Trash2
 } from "lucide-react";
-import SettingsDialog from "@/components/setting/SettingsDialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ThemeSelector } from "@/components/theme/ThemeSelector";
 
 interface Chat {
   id: string;
@@ -412,44 +409,27 @@ export default function Sidebar({
           </div>
         </nav>
 
-        {/* Footer with settings and theme toggle - with consistent icons */}
+        {/* Footer with settings */}
         <div className="border-t p-4 fixed bottom-0 left-0 bg-background w-full">
           <div className={cn(
-            "flex",
-            collapsed ? "flex-col items-center" : "items-center justify-between"
+            "flex gap-2",
+            collapsed ? "flex-col items-center" : "items-center justify-center"
           )}>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size={collapsed ? "icon" : "default"}
-                  className={cn(
-                    collapsed ? "w-full flex justify-center" : "gap-2 group"
-                  )}
-                >
-                  <Settings className={cn(
-                    "h-4 w-4 transition-all duration-300",
-                    !collapsed && "group-hover:rotate-45"
-                  )} />
-                  {!collapsed && <span>Settings</span>}
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[625px]">
-                <DialogHeader>
-                  <DialogTitle>Settings</DialogTitle>
-                </DialogHeader>
-                <SettingsDialog />
-              </DialogContent>
-            </Dialog>
-            
-            <ThemeSelector 
-              collapsed={collapsed}
-              className={cn(
-                collapsed ? "mt-2" : "",
-                "w-auto"
-              )}
-              size={collapsed ? "icon" : "default"}
-            />
+            <Link href="/settings">
+              <Button 
+                variant="ghost" 
+                size={collapsed ? "icon" : "default"}
+                className={cn(
+                  collapsed ? "w-full flex justify-center" : "gap-2 group"
+                )}
+              >
+                <Settings className={cn(
+                  "h-4 w-4 transition-all duration-300",
+                  !collapsed && "group-hover:rotate-45"
+                )} />
+                {!collapsed && <span>Settings</span>}
+              </Button>
+            </Link>
           </div>
           
           {!collapsed && (

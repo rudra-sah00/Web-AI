@@ -18,28 +18,42 @@ class ConfigService {
    * Initialize config from runtime sources (localStorage or runtime-config.json)
    */
   private async initialize(): Promise<void> {
-    // Client-side: Try to load from localStorage
+    // Client-side: Try to load from server first, then localStorage as fallback
     if (typeof window !== 'undefined') {
+      // First try to load from server API
+      try {
+        const response = await fetch('/api/config');
+        if (response.ok) {
+          const serverConfig = await response.json();
+          this.config = { ...this.config, ...serverConfig };
+          console.log('Config loaded from server');
+        }
+      } catch (e) {
+        console.error('Failed to load config from server:', e);
+      }
+
+      // Then try localStorage as fallback
       const savedConfig = localStorage.getItem('ollamaConfig');
       if (savedConfig) {
         try {
-          this.config = JSON.parse(savedConfig);
+          const localConfig = JSON.parse(savedConfig);
+          // Merge with server config, giving priority to server data
+          this.config = { ...localConfig, ...this.config };
+          console.log('Config merged with localStorage fallback');
         } catch (e) {
           console.error('Failed to parse saved config from localStorage:', e);
         }
-      } else {
-        // If no localStorage data, try to fetch from runtime-config.json
-        try {
-          const response = await fetch('/api/config/load');
-          if (response.ok) {
-            const runtimeConfig = await response.json();
-            if (runtimeConfig && runtimeConfig.config) {
-              this.config = runtimeConfig.config;
-            }
-          }
-        } catch (e) {
-          console.error('Failed to load runtime config:', e);
+      }
+
+      // Load runtime config data
+      try {
+        const response = await fetch('/runtime-config.json');
+        if (response.ok) {
+          const runtimeConfig = await response.json();
+          this.config = { ...this.config, ...runtimeConfig };
         }
+      } catch (e) {
+        console.error('Failed to load runtime config:', e);
       }
     }
     // Server-side initialization would happen in the API route
@@ -90,7 +104,7 @@ class ConfigService {
         
         // Also make a fetch request to update the server-side config
         try {
-          const response = await fetch('/api/config/update', {
+          const response = await fetch('/api/config', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -100,6 +114,8 @@ class ConfigService {
           
           if (!response.ok) {
             console.error('Failed to update server config:', await response.text());
+          } else {
+            console.log('Config saved to server successfully');
           }
         } catch (error) {
           console.error('Failed to sync config with server:', error);
@@ -138,13 +154,27 @@ class ConfigService {
     const index = this.config.ollamaModels.findIndex(model => model.id === modelId);
     
     if (index === -1) {
-      return false;
+      // Model doesn't exist, create a new one
+      const newModel: OllamaModel = {
+        id: modelId,
+        name: modelId, // Use id as name if not specified
+        description: `Model configuration for ${modelId}`,
+        installed: true,
+        parameters: {
+          temperature: 0.7,
+          top_p: 0.9,
+          max_tokens: 2048
+        },
+        ...updates
+      };
+      
+      this.config.ollamaModels.push(newModel);
+    } else {
+      this.config.ollamaModels[index] = {
+        ...this.config.ollamaModels[index],
+        ...updates
+      };
     }
-    
-    this.config.ollamaModels[index] = {
-      ...this.config.ollamaModels[index],
-      ...updates
-    };
     
     // Save changes
     return this.saveConfig();

@@ -102,19 +102,36 @@ export class ChatService {
       // Build context from chat history (last few messages)
       const relevantHistory = chatHistory.slice(-6); // Take last 6 messages for context
       
-      // Format messages for context - this becomes the system prompt
-      const systemPrompt = relevantHistory.length > 0 ? relevantHistory.map(msg => 
-        `${msg.role === 'user' ? 'Human' : 'Assistant'}: ${msg.content}`
-      ).join('\n\n') : '';
+      // Get default system prompt from settings
+      let systemPrompt = '';
+      const displaySettings = typeof window !== 'undefined' ? localStorage.getItem('chatDisplaySettings') : null;
+      let defaultSystemPrompt = '';
+      if (displaySettings) {
+        const settings = JSON.parse(displaySettings);
+        defaultSystemPrompt = settings.defaultSystemPrompt || '';
+      }
+      
+      // Format messages for context
+      if (relevantHistory.length > 0) {
+        systemPrompt = relevantHistory.map(msg => 
+          `${msg.role === 'user' ? 'Human' : 'Assistant'}: ${msg.content}`
+        ).join('\n\n');
+        // Prepend default system prompt if it exists
+        if (defaultSystemPrompt) {
+          systemPrompt = defaultSystemPrompt + '\n\n' + systemPrompt;
+        }
+      } else if (defaultSystemPrompt) {
+        // Use default system prompt for new conversations
+        systemPrompt = defaultSystemPrompt;
+      }
 
       // Prepare generation options
       const options: GenerationOptions = {
         model: selectedModelId,
         prompt: prompt,
-        system: systemPrompt.length > 0 ? systemPrompt : undefined,  // Move system to top level
+        system: systemPrompt.length > 0 ? systemPrompt : undefined,
         options: {
           ...modelConfig.parameters
-          // Remove system from options as it's now at the top level
         },
         stream: settings.chatSettings.streamResponses
       };

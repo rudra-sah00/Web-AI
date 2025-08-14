@@ -1,0 +1,77 @@
+{
+  "ollamaModels": [
+    {
+      "id": "llama3.2:3b",
+      "name": "Llama 3.2 3B",
+      "description": "Meta's Llama 3.2 3B model - efficient and capable",
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "max_tokens": 2048,
+        "top_k": 40,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "num_ctx": 2048
+      },
+      "installed": false
+    },
+    {
+      "id": "llama3.2:1b",
+      "name": "Llama 3.2 1B",
+      "description": "Meta's Llama 3.2 1B model - lightweight and fast",
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "max_tokens": 2048,
+        "top_k": 40,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "num_ctx": 2048
+      },
+      "installed": false
+    },
+    {
+      "id": "qwen2.5:7b",
+      "name": "Qwen 2.5 7B",
+      "description": "Alibaba's Qwen 2.5 7B model - excellent multilingual capabilities",
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "max_tokens": 2048,
+        "top_k": 40,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "num_ctx": 2048
+      },
+      "installed": false
+    },
+    {
+      "id": "qwen:0.5b",
+      "name": "qwen:0.5b",
+      "description": "Model configuration for qwen:0.5b",
+      "installed": true,
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "max_tokens": 8192,
+        "top_k": 40,
+        "repeat_penalty": 1.1,
+        "seed": -1,
+        "num_ctx": 2048
+      }
+    }
+  ],
+  "defaultSettings": {
+    "apiEndpoint": "http://localhost:11434",
+    "autoSave": true,
+    "showTimestamps": false,
+    "enableMarkdown": true,
+    "enableCodeHighlighting": true,
+    "defaultSystemPrompt": "",
+    "defaultTemperature": 0.7,
+    "defaultTopP": 0.9,
+    "defaultMaxTokens": 2048,
+    "defaultModel": "llama3.2:3b"
+  },
+  "apiEndpoint": "http://localhost:11434"
+}

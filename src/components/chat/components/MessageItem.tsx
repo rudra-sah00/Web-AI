@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { User, Bot, Edit3, Trash2, Copy, Check } from "lucide-react";
@@ -16,6 +16,16 @@ export default function MessageItem({ message, onEdit, onDelete }: MessageItemPr
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(message.content);
   const [isCopied, setIsCopied] = useState(false);
+  const [showTimestamps, setShowTimestamps] = useState(false);
+
+  // Load display settings
+  useEffect(() => {
+    const displaySettings = localStorage.getItem('chatDisplaySettings');
+    if (displaySettings) {
+      const settings = JSON.parse(displaySettings);
+      setShowTimestamps(settings.showTimestamps || false);
+    }
+  }, []);
 
   const handleEditSave = () => {
     onEdit(message.id, editText);
@@ -58,7 +68,14 @@ export default function MessageItem({ message, onEdit, onDelete }: MessageItemPr
                   </div>
                 </div>
               ) : (
-                <div className="whitespace-pre-wrap">{message.content}</div>
+                <div className="space-y-1">
+                  <div className="whitespace-pre-wrap">{message.content}</div>
+                  {showTimestamps && (
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(message.timestamp).toLocaleString()}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>

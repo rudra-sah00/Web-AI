@@ -2,6 +2,10 @@ export interface ModelParameters {
   temperature: number;
   top_p: number;
   max_tokens: number;
+  top_k?: number;
+  repeat_penalty?: number;
+  seed?: number;
+  num_ctx?: number;
   frequency_penalty?: number;
   presence_penalty?: number;
 }
@@ -52,6 +56,11 @@ export interface GenerationOptions {
     top_k?: number;
     num_predict?: number;
     max_tokens?: number;
+    repeat_penalty?: number;
+    seed?: number;
+    num_ctx?: number;
+    frequency_penalty?: number;
+    presence_penalty?: number;
     stop?: string[];
   };
 }

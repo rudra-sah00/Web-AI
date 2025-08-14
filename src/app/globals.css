@@ -484,3 +484,321 @@
   pointer-events: none;
   z-index: 0;
 }
+
+/* ===========================================
+   APPEARANCE SETTINGS SUPPORT
+   =========================================== */
+
+/* Font Family Support */
+:root {
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --base-font-size: 16px;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--base-font-size);
+}
+
+/* Compact Mode */
+.compact-mode {
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.25rem;
+}
+
+.compact-mode .p-4 {
+  padding: var(--spacing-md) !important;
+}
+
+.compact-mode .p-6 {
+  padding: var(--spacing-lg) !important;
+}
+
+.compact-mode .space-y-4 > * + * {
+  margin-top: var(--spacing-md) !important;
+}
+
+.compact-mode .space-y-6 > * + * {
+  margin-top: var(--spacing-lg) !important;
+}
+
+.compact-mode .gap-4 {
+  gap: var(--spacing-md) !important;
+}
+
+.compact-mode .gap-6 {
+  gap: var(--spacing-lg) !important;
+}
+
+/* Animation Control */
+.no-animations * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Accent Color Support */
+:root[data-accent-color="blue"] {
+  --accent-500: rgb(59 130 246);
+  --accent-600: rgb(37 99 235);
+  --accent-700: rgb(29 78 216);
+}
+
+:root[data-accent-color="green"] {
+  --accent-500: rgb(34 197 94);
+  --accent-600: rgb(22 163 74);
+  --accent-700: rgb(21 128 61);
+}
+
+:root[data-accent-color="purple"] {
+  --accent-500: rgb(168 85 247);
+  --accent-600: rgb(147 51 234);
+  --accent-700: rgb(126 34 206);
+}
+
+:root[data-accent-color="orange"] {
+  --accent-500: rgb(249 115 22);
+  --accent-600: rgb(234 88 12);
+  --accent-700: rgb(194 65 12);
+}
+
+:root[data-accent-color="red"] {
+  --accent-500: rgb(239 68 68);
+  --accent-600: rgb(220 38 38);
+  --accent-700: rgb(185 28 28);
+}
+
+:root[data-accent-color="pink"] {
+  --accent-500: rgb(236 72 153);
+  --accent-600: rgb(219 39 119);
+  --accent-700: rgb(190 24 93);
+}
+
+:root[data-accent-color="indigo"] {
+  --accent-500: rgb(99 102 241);
+  --accent-600: rgb(79 70 229);
+  --accent-700: rgb(67 56 202);
+}
+
+:root[data-accent-color="teal"] {
+  --accent-500: rgb(20 184 166);
+  --accent-600: rgb(13 148 136);
+  --accent-700: rgb(15 118 110);
+}
+
+/* Apply accent color to primary elements */
+:root[data-accent-color] .bg-primary {
+  background-color: var(--accent-500) !important;
+}
+
+:root[data-accent-color] .text-primary {
+  color: var(--accent-600) !important;
+}
+
+:root[data-accent-color] .border-primary {
+  border-color: var(--accent-500) !important;
+}
+
+:root[data-accent-color] .hover\:bg-primary:hover {
+  background-color: var(--accent-600) !important;
+}
+
+:root[data-accent-color] .focus\:ring-primary:focus {
+  --tw-ring-color: var(--accent-500) !important;
+}
+
+/* Accent color for buttons */
+:root[data-accent-color] .bg-blue-500 {
+  background-color: var(--accent-500) !important;
+}
+
+:root[data-accent-color] .hover\:bg-blue-600:hover {
+  background-color: var(--accent-600) !important;
+}
+
+/* Settings page specific styling */
+.settings-accent-preview {
+  transition: all 0.2s ease-in-out;
+}
+
+.settings-accent-preview:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Font preview for settings */
+.font-preview {
+  transition: all 0.2s ease-in-out;
+}
+
+.font-preview:hover {
+  background-color: rgba(var(--primary), 0.05);
+  border-color: rgba(var(--primary), 0.3);
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.no-animations * {
+  transition: none !important;
+}
+
+/* Custom Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes expand {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes wiggle {
+  0%, 7% {
+    transform: rotateZ(0);
+  }
+  15% {
+    transform: rotateZ(-15deg);
+  }
+  20% {
+    transform: rotateZ(10deg);
+  }
+  25% {
+    transform: rotateZ(-10deg);
+  }
+  30% {
+    transform: rotateZ(6deg);
+  }
+  35% {
+    transform: rotateZ(-4deg);
+  }
+  40%, 100% {
+    transform: rotateZ(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(var(--primary), 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(var(--primary), 0.6);
+  }
+}
+
+/* Animation Classes */
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-fade-in-delay {
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+.animate-slide-up-delay {
+  animation: slideUp 0.8s ease-out calc(var(--delay, 0s)) both;
+}
+
+.animate-fade-in-left {
+  animation: slideInLeft 0.8s ease-out;
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.8s ease-out calc(var(--delay, 0s)) both;
+}
+
+.animate-expand {
+  animation: expand 1s ease-out;
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin-slow {
+  animation: spin 4s linear infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce 2s infinite;
+}
+
+.animate-wiggle {
+  animation: wiggle 2s ease-in-out infinite;
+}
+
+.animate-slide-in-item {
+  opacity: 0;
+  animation: slideUp 0.5s ease-out calc(var(--delay, 0s)) forwards;
+}
+
+.animate-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}

@@ -10,7 +10,20 @@ class ModelParameterService {
    */
   getDefaultParameters(modelId: string): ModelParameters | null {
     const model = configService.getModelConfig(modelId);
-    return model ? model.parameters : null;
+    if (model && model.parameters) {
+      return model.parameters;
+    }
+    
+    // If model not found in config, return default parameters
+    return {
+      temperature: 0.7,
+      top_p: 0.9,
+      max_tokens: 2048,
+      top_k: 40,
+      repeat_penalty: 1.1,
+      seed: -1,
+      num_ctx: 2048
+    };
   }
   
   /**
@@ -28,12 +41,25 @@ class ModelParameterService {
     const originalConfig = require('../config/config.json');
     const originalModel = originalConfig.ollamaModels.find((m: OllamaModel) => m.id === modelId);
     
-    if (!originalModel) {
-      return false;
+    let defaultParameters: ModelParameters;
+    
+    if (originalModel && originalModel.parameters) {
+      defaultParameters = originalModel.parameters;
+    } else {
+      // Use generic defaults for models not in config
+      defaultParameters = {
+        temperature: 0.7,
+        top_p: 0.9,
+        max_tokens: 2048,
+        top_k: 40,
+        repeat_penalty: 1.1,
+        seed: -1,
+        num_ctx: 2048
+      };
     }
     
     return await configService.updateModelConfig(modelId, { 
-      parameters: originalModel.parameters 
+      parameters: defaultParameters 
     });
   }
   
@@ -63,6 +89,18 @@ class ModelParameterService {
       errors.push('Presence penalty should be between -2 and 2');
     }
     
+    if (parameters.top_k && (parameters.top_k < 1 || parameters.top_k > 100)) {
+      errors.push('Top K should be between 1 and 100');
+    }
+    
+    if (parameters.repeat_penalty && (parameters.repeat_penalty < 0.1 || parameters.repeat_penalty > 2.0)) {
+      errors.push('Repeat penalty should be between 0.1 and 2.0');
+    }
+    
+    if (parameters.num_ctx && (parameters.num_ctx < 512 || parameters.num_ctx > 8192)) {
+      errors.push('Context window should be between 512 and 8192');
+    }
+    
     return {
       valid: errors.length === 0,
       errors
@@ -77,6 +115,10 @@ class ModelParameterService {
       temperature: 'Controls randomness: lower values are more deterministic (0-2)',
       top_p: 'Controls diversity via nucleus sampling (0-1)',
       max_tokens: 'Maximum number of tokens to generate',
+      top_k: 'Limits the number of highest probability tokens to consider (1-100)',
+      repeat_penalty: 'Penalty for repeating tokens (0.1-2.0, 1.0 = no penalty)',
+      seed: 'Random seed for reproducible outputs (-1 for random)',
+      num_ctx: 'Context window size (512-8192)',
       frequency_penalty: 'Decrease the likelihood of repetition (optional, -2 to 2)',
       presence_penalty: 'Increase diversity of word choices (optional, -2 to 2)'
     };
