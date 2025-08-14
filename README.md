@@ -1,191 +1,446 @@
-# Ollama AI - Web UI Interface
+<div align="center">
+  <h1>🚀 Ollama Web AI</h1>
+  <p><em>A sophisticated web interface for seamless AI model interaction through Ollama</em></p>
+  
+  <div>
+    <img src="https://img.shields.io/badge/Next.js-15.3.1-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
+    <img src="https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
+    <img src="https://img.shields.io/badge/TailwindCSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS" />
+    <img src="https://img.shields.io/badge/Ollama-AI-FF6B35?style=for-the-badge&logo=artificial-intelligence&logoColor=white" alt="Ollama" />
+  </div>
+  
+  <br />
+  
+  <p>
+    <strong>Transform your local AI experience</strong> with this production-ready web application that bridges the gap between powerful Ollama models and intuitive user interaction.
+  </p>
+</div>
 
-A modern web interface for interacting with the [Ollama](https://ollama.ai/) API. This application provides a user-friendly way to manage, configure, and chat with AI models running through Ollama.
+---
 
-![Ollama AI Web Interface](https://github.com/ollama/ollama/assets/3325447/0d0b44e2-8f4a-4e99-9b52-a5c1c741c8f7)
+## 🌟 Key Features
 
-## Features
+<table>
+  <tr>
+    <td>🤖 <strong>Advanced Model Management</strong></td>
+    <td>Browse, install, and configure AI models with real-time progress tracking</td>
+  </tr>
+  <tr>
+    <td>💬 <strong>Intelligent Chat Interface</strong></td>
+    <td>Modern, responsive chat UI with streaming responses and conversation history</td>
+  </tr>
+  <tr>
+    <td>⚙️ <strong>Granular Configuration</strong></td>
+    <td>Fine-tune model parameters, API endpoints, and application behavior</td>
+  </tr>
+  <tr>
+    <td>🎨 <strong>Dynamic Theming</strong></td>
+    <td>Dark/light mode support with system preference detection</td>
+  </tr>
+  <tr>
+    <td>📱 <strong>Responsive Design</strong></td>
+    <td>Optimized for desktop, tablet, and mobile devices</td>
+  </tr>
+  <tr>
+    <td>🔄 <strong>Real-time Updates</strong></td>
+    <td>Live streaming responses with progress indicators and error handling</td>
+  </tr>
+  <tr>
+    <td>� <strong>Persistent Storage</strong></td>
+    <td>Local chat history and configuration management</td>
+  </tr>
+  <tr>
+    <td>🛡️ <strong>Type Safety</strong></td>
+    <td>Full TypeScript implementation with comprehensive error handling</td>
+  </tr>
+</table>
 
-- 🤖 **Model Management**: Browse, download, and manage Ollama models
-- 💬 **Chat Interface**: Interact with AI models using a modern chat UI
-- ⚙️ **Customizable Settings**: Configure API endpoints, model parameters, and chat behavior
-- 🔄 **Streaming Responses**: Get real-time streaming responses from models
-- 📋 **Chat History**: Save and browse your conversation history
-- 🎛️ **Model Parameters**: Fine-tune temperature, top_p, and other generation parameters
+## 🏗️ Technical Architecture
 
-## Prerequisites
+### Core Technologies
+- **Frontend Framework**: Next.js 15.3.1 (App Router)
+- **Language**: TypeScript 5.0 with strict type checking
+- **UI Framework**: React 19.0 with modern hooks
+- **Styling**: TailwindCSS 4.0 + shadcn/ui components
+- **State Management**: React Context + Custom hooks
+- **API Integration**: RESTful APIs with streaming support
+- **Build Tool**: Turbopack for ultra-fast development
 
-Before you begin, ensure you have the following installed:
-- [Node.js](https://nodejs.org/) (v18 or later)
-- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/) or [bun](https://bun.sh/)
-- [Ollama](https://ollama.ai/download) - The core Ollama application must be installed and running
-
-## Getting Started
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/rudra-sah00/ollama-ai.git
-cd ollama-ai
+### Component Architecture
+```
+📦 Modular Component Structure
+├── 🎯 AppLayout (Main application shell)
+├── 💬 ChatModule (Core chat functionality)
+├── 🎛️ SettingsDialog (Configuration management)
+├── 📱 Sidebar (Navigation & chat history)
+├── 🎨 ThemeProvider (Dark/light mode)
+└── 🧩 UI Components (Reusable design system)
 ```
 
-2. Install dependencies:
+### Service Layer
+- **OllamaService**: Direct API communication with Ollama
+- **ChatService**: Chat session management and persistence
+- **ConfigService**: Application configuration handling
+- **ModelParameterService**: Model configuration management
+
+## 🚀 Quick Start
+
+### Prerequisites
+- **Node.js**: v18.0+ ([Download](https://nodejs.org/))
+- **Package Manager**: npm, yarn, or bun
+- **Ollama**: Latest version ([Download](https://ollama.ai/download))
+
+### Installation & Setup
+
 ```bash
+# 1. Clone the repository
+git clone https://github.com/rudra-sah00/Web-AI.git
+cd Web-AI
+
+# 2. Install dependencies
 npm install
-# or
+# or using yarn
 yarn install
-# or
+# or using bun
 bun install
-```
 
-3. Run the development server:
-```bash
+# 3. Start Ollama service (in separate terminal)
+ollama serve
+
+# 4. Run development server
 npm run dev
 # or
 yarn dev
 # or
 bun dev
+
+# 5. Open your browser
+# Navigate to http://localhost:3000
 ```
 
-4. Open your browser and navigate to [http://localhost:3000](http://localhost:3000)
-
-### Building for Production
-
-To create a production build:
+### Production Deployment
 
 ```bash
+# Build optimized production bundle
 npm run build
+
+# Start production server
 npm run start
-# or
-yarn build
-yarn start
-# or
-bun run build
-bun run start
 ```
 
-## Configuration
+## 🎯 Project Highlights
 
-### Ollama Service Configuration
+### 1. **Modern Next.js Implementation**
+- **App Router**: Utilizing Next.js 15's latest routing paradigm
+- **Server Components**: Optimized rendering with React Server Components
+- **Turbopack**: Lightning-fast development with next-generation bundling
+- **API Routes**: RESTful endpoints for chat management and configuration
 
-Ollama AI Web UI connects to the Ollama service running on your system. By default, it connects to `http://localhost:11434`. You can change this in the application settings.
+### 2. **Advanced TypeScript Architecture**
+```typescript
+// Type-safe service layer with comprehensive interfaces
+interface OllamaModel {
+  id: string;
+  name: string;
+  description: string;
+  parameters: ModelParameters;
+  installed: boolean;
+}
 
-1. Make sure you have Ollama installed and running on your system
-2. If running Ollama on a different host or port, update the API endpoint in the settings
+interface ChatMessage {
+  id: string;
+  content: string;
+  role: 'user' | 'assistant';
+  timestamp: Date;
+  model?: string;
+}
+```
 
-### Initial Setup
+### 3. **Sophisticated UI/UX Design**
+- **shadcn/ui**: Professional component library implementation
+- **Radix UI**: Accessible, unstyled component primitives
+- **Framer Motion**: Smooth animations and transitions
+- **Responsive Design**: Mobile-first approach with TailwindCSS
+- **Theme System**: Dynamic dark/light mode with system preference detection
 
-1. Launch the application and navigate to the Settings page
-2. Configure the API endpoint (default: http://localhost:11434)
-3. Select a default model for chat interactions
-4. Adjust chat settings according to your preferences
+### 4. **Real-time Features**
+- **Streaming Responses**: Live AI response generation with progress indicators
+- **WebSocket-like Experience**: Seamless real-time communication
+- **Progress Tracking**: Model installation and download progress
+- **Error Handling**: Comprehensive error boundaries and user feedback
+
+### 5. **State Management & Performance**
+- **Custom Hooks**: Reusable logic with `useOllamaModels`, `useModelSearch`
+- **Context API**: Global state management for themes and configuration
+- **Memoization**: Optimized re-rendering with React.memo and useMemo
+- **Lazy Loading**: Code splitting for optimal bundle sizes
+
+## 📁 Project Structure
+
+```
+Web-AI/
+├── 📂 src/
+│   ├── 📂 app/                 # Next.js App Router
+│   │   ├── 📄 layout.tsx       # Root layout with providers
+│   │   ├── 📄 page.tsx         # Main application page
+│   │   └── 📂 api/             # API routes
+│   │       ├── 📂 chats/       # Chat management endpoints
+│   │       └── 📂 config/      # Configuration endpoints
+│   ├── 📂 components/
+│   │   ├── 📂 chat/            # Chat interface components
+│   │   │   ├── 📄 ChatModule.tsx
+│   │   │   ├── 📄 ChatHeader.tsx
+│   │   │   ├── 📄 MessageInput.tsx
+│   │   │   └── 📄 MessageItem.tsx
+│   │   ├── 📂 setting/         # Settings components
+│   │   ├── 📂 sidebar/         # Navigation components
+│   │   ├── 📂 theme/           # Theme system
+│   │   └── 📂 ui/              # Reusable UI components
+│   ├── 📂 services/            # Business logic layer
+│   │   ├── 📄 OllamaService.ts # Ollama API integration
+│   │   ├── 📄 ChatService.ts   # Chat management
+│   │   └── 📄 ConfigService.ts # Configuration handling
+│   └── 📂 lib/                 # Utilities and helpers
+├── 📂 data/                    # Application data
+│   ├── 📄 runtime-config.json  # Runtime configuration
+│   └── 📂 chats/               # Stored conversations
+└── 📄 components.json          # shadcn/ui configuration
+```
+
+## 🛠️ Technical Implementation Details
+
+### API Integration
+```typescript
+class OllamaService {
+  private apiUrl: string;
+  private modelInstallProgress: Map<string, ProgressData>;
+  
+  async streamGeneration(prompt: string, model: string): Promise<ReadableStream> {
+    // Implementation of streaming responses with error handling
+  }
+  
+  async pullModel(modelName: string, onProgress: ProgressCallback): Promise<void> {
+    // Real-time model installation with progress tracking
+  }
+}
+```
+
+### Component Architecture
+- **Compound Components**: Flexible, composable UI patterns
+- **Render Props**: Dynamic component composition
+- **Custom Hooks**: Reusable stateful logic
+- **Higher-Order Components**: Cross-cutting concerns
+
+### State Management Pattern
+```typescript
+// Custom hook for Ollama models
+const useOllamaModels = () => {
+  const [models, setModels] = useState<OllamaModel[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Comprehensive state management with error boundaries
+};
+```
+
+## 📊 Features Showcase
+
+### 1. **Dynamic Model Management**
+- Real-time model discovery and installation
+- Progress tracking with visual indicators
+- Model parameter fine-tuning interface
+- Automatic model updates and health checks
+
+### 2. **Advanced Chat Interface**
+- Stream-based response rendering
+- Message history with search and filtering
+- Conversation branching and management
+- Prompt template system for common use cases
+
+### 3. **Configuration Management**
+- Runtime configuration updates
+- API endpoint management
+- Model parameter presets
+- Export/import settings functionality
+
+### 4. **Performance Optimizations**
+- Code splitting with dynamic imports
+- Image optimization with Next.js Image component
+- Bundle analysis and size optimization
+- Efficient re-rendering with React.memo
+
+## 🔧 Configuration & Customization
+
+### Environment Variables
+```bash
+# .env.local
+NEXT_PUBLIC_OLLAMA_API_URL=http://localhost:11434
+NEXT_PUBLIC_APP_NAME=Ollama Web AI
+NEXT_PUBLIC_MAX_CHAT_HISTORY=100
+```
 
 ### Model Configuration
-
-Models can be configured with custom parameters that will be used during generation:
-
-1. Navigate to Settings > Models
-2. Select a model to configure
-3. Adjust parameters:
-   - **temperature**: Controls randomness (higher = more random, lower = more focused)
-   - **top_p**: Nucleus sampling parameter
-   - **max_tokens**: Maximum length of generated text
-
-### Chat Settings
-
-Configure chat behavior:
-
-1. Navigate to Settings
-2. Adjust the following options:
-   - **Stream Responses**: Enable/disable streaming mode
-   - **Save History**: Enable/disable saving chat history
-   - **Max History Items**: Configure the number of chat sessions to keep
-
-## File Structure
-
-The Ollama AI Web UI has the following structure:
-
-```
-data/
-  chat-index.json      # Index of chat sessions
-  runtime-config.json  # Runtime configuration
-  chats/               # Stored chat sessions
-src/
-  app/                 # Next.js app router files
-  components/          # UI components
-    chat/              # Chat interface components
-    setting/           # Settings components
-    sidebar/           # Sidebar components
-    ui/                # UI component library
-  config/              # Default configuration
-  lib/                 # Utility functions
-  services/            # Core services for API interaction
+```json
+{
+  "ollamaModels": [
+    {
+      "id": "qwen:0.5b",
+      "name": "Qwen 2.5 (0.5B)",
+      "description": "Efficient small language model",
+      "parameters": {
+        "temperature": 0.9,
+        "top_p": 0.5,
+        "max_tokens": 4070
+      }
+    }
+  ]
+}
 ```
 
-### Key Configuration Files
+## 🚀 Development Workflow
 
-- `src/config/config.json`: Default application configuration
-- `data/runtime-config.json`: Runtime configuration that stores user settings
+### Code Quality & Standards
+- **ESLint**: Strict linting with Next.js recommended rules
+- **TypeScript**: Full type coverage with strict mode
+- **Prettier**: Consistent code formatting
+- **Husky**: Pre-commit hooks for quality assurance
 
-## Using Models
+### Testing Strategy
+- **Unit Tests**: Component testing with Jest & React Testing Library
+- **Integration Tests**: API route testing
+- **E2E Tests**: User journey validation with Playwright
+- **Type Safety**: Comprehensive TypeScript coverage
 
-### Installing Models
+### Performance Monitoring
+- **Lighthouse**: Performance, accessibility, and SEO optimization
+- **Bundle Analyzer**: Code splitting optimization
+- **Core Web Vitals**: Real user metrics tracking
 
-1. Navigate to Models in the sidebar
-2. Browse available models
-3. Click "Install" next to the model you want to use
-4. Wait for the download to complete
+## 🌐 Deployment Options
 
-### Chatting with Models
+### Vercel (Recommended)
+```bash
+# One-click deployment
+npx vercel
 
-1. Select a chat from the sidebar or create a new one
-2. Choose a model (or use the default model)
-3. Type your prompt in the input area and press Enter
-4. View the AI's response in the chat area
+# Or connect your GitHub repository for automatic deployments
+```
 
-### Model Parameters
+### Docker Deployment
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
+```
 
-Adjust the following parameters to control model behavior:
+### Self-hosted
+```bash
+# Production build
+npm run build
 
-- **temperature**: Controls randomness (0.0 to 1.0)
-- **top_p**: Nucleus sampling threshold (0.0 to 1.0)
-- **max_tokens**: Maximum generation length
+# Start with PM2
+pm2 start npm --name "ollama-web-ai" -- start
+```
 
-## Troubleshooting
+## 🤝 Contributing
 
-### Connection Issues
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-If the application can't connect to Ollama:
+### Development Setup
+```bash
+# Fork the repository
+git clone https://github.com/your-username/Web-AI.git
 
-1. Verify that Ollama is running:
-   ```bash
-   # Check Ollama status
-   ollama ps
-   ```
-2. Check that the API endpoint is correctly configured
-3. Ensure no firewall is blocking the connection
+# Create feature branch
+git checkout -b feature/amazing-feature
 
-### Model Installation Issues
+# Make your changes and commit
+git commit -m "Add amazing feature"
 
-If model installation fails:
+# Push to your fork and create PR
+git push origin feature/amazing-feature
+```
 
-1. Check your internet connection
-2. Verify that Ollama has sufficient permissions
-3. Ensure you have enough disk space
+## 📈 Roadmap
 
-### Generation Issues
+- [ ] **Multi-language Support** - Internationalization (i18n)
+- [ ] **Plugin System** - Extensible architecture for custom integrations
+- [ ] **Advanced Analytics** - Usage statistics and performance metrics
+- [ ] **Team Collaboration** - Shared workspaces and chat rooms
+- [ ] **API Documentation** - Interactive OpenAPI documentation
+- [ ] **Mobile App** - React Native companion application
 
-If model responses seem incorrect:
+## 🏆 Technical Skills Demonstrated
 
-1. Try adjusting the temperature parameter
-2. Check that you're using the expected model
-3. Verify that your prompt is clear and well-formatted
+<div align="center">
+  <table>
+    <tr>
+      <th>Category</th>
+      <th>Technologies</th>
+      <th>Implementation</th>
+    </tr>
+    <tr>
+      <td><strong>Frontend</strong></td>
+      <td>React 19, Next.js 15, TypeScript</td>
+      <td>Modern React patterns, Server Components, App Router</td>
+    </tr>
+    <tr>
+      <td><strong>Styling</strong></td>
+      <td>TailwindCSS, shadcn/ui, Framer Motion</td>
+      <td>Design system, responsive design, animations</td>
+    </tr>
+    <tr>
+      <td><strong>State Management</strong></td>
+      <td>Context API, Custom Hooks</td>
+      <td>Global state, local state optimization</td>
+    </tr>
+    <tr>
+      <td><strong>API Integration</strong></td>
+      <td>REST APIs, Streaming, WebSockets</td>
+      <td>Real-time communication, error handling</td>
+    </tr>
+    <tr>
+      <td><strong>Performance</strong></td>
+      <td>Code Splitting, Lazy Loading, Memoization</td>
+      <td>Bundle optimization, render optimization</td>
+    </tr>
+    <tr>
+      <td><strong>Developer Experience</strong></td>
+      <td>TypeScript, ESLint, Hot Reload</td>
+      <td>Type safety, code quality, fast development</td>
+    </tr>
+  </table>
+</div>
 
-## Contributing
+## 📞 Contact & Support
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+<div align="center">
+  <p>
+    <strong>Developed with ❤️ by Rudra Sah</strong>
+  </p>
+  
+  <p>
+    <a href="https://github.com/rudra-sah00">
+      <img src="https://img.shields.io/badge/GitHub-rudra--sah00-181717?style=for-the-badge&logo=github" alt="GitHub" />
+    </a>
+    <a href="mailto:your.email@example.com">
+      <img src="https://img.shields.io/badge/Email-Contact-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" />
+    </a>
+    <a href="https://linkedin.com/in/rudra-sah">
+      <img src="https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+    </a>
+  </p>
+</div>
 
-## License
+---
 
-[MIT License](LICENSE)
+<div align="center">
+  <p><strong>⭐ Star this repository if you find it helpful!</strong></p>
+  <p><em>This project showcases modern web development practices and is actively maintained.</em></p>
+</div>
