@@ -86,12 +86,12 @@ export default function MessageItem({ message, onEdit, onDelete }: MessageItemPr
                 {isUser ? (
                   <div className={cn(
                     "px-4 py-3 rounded-2xl shadow-sm bg-primary text-primary-foreground rounded-br-md",
-                    "transition-all duration-300 hover:shadow-md overflow-hidden",
-                    "inline-block max-w-[80%] min-w-fit w-auto"
+                    "transition-all duration-300 hover:shadow-md",
+                    "max-w-[80%] min-w-0 break-words"
                   )}>
                     <MessageContent 
                       content={message.content}
-                      className="text-sm leading-relaxed [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 whitespace-pre-wrap"
+                      className="text-sm leading-relaxed [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 whitespace-pre-wrap break-words"
                     />
                     
                     {showTimestamps && (

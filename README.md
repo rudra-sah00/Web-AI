@@ -1,19 +1,663 @@
+# 🚀 Web-AI
+
+> **A sophisticated web interface for seamless AI model interaction through Ollama**
+
+[![Next.js](https://img.shields.io/badge/Next.js-15.3.1-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Ollama](https://img.shields.io/badge/Ollama-AI-FF6B35?style=for-the-badge&logo=artificial-intelligence&logoColor=white)](https://ollama.ai/)
+
+**Transform your local AI experience** with this production-ready web application that provides a ChatGPT-like interface for interacting with local AI models through Ollama. Built with modern web technologies and designed for performance, privacy, and ease of use.
+
+---
+
+## ✨ Key Features
+
+| Feature | Description |
+|---------|-------------|
+| 🤖 **Advanced Model Management** | Browse, install, and configure AI models with real-time progress tracking |
+| 💬 **Intelligent Chat Interface** | ChatGPT-style chat UI with streaming responses and conversation history |
+| 🧠 **Smart Context Awareness** | Understands references like "that", "it", maintaining conversation continuity |
+| ⚙️ **Granular Configuration** | Fine-tune model parameters, API endpoints, and application behavior |
+| 🎨 **Dynamic Theming** | Dark/light mode support with system preference detection |
+| 📱 **Responsive Design** | Optimized for desktop, tablet, and mobile devices |
+| 🔄 **Real-time Streaming** | Live streaming responses with progress indicators |
+| 💾 **Persistent Storage** | Local conversation history and settings management |
+| 🔒 **Privacy-First** | All data stays on your machine - no external API calls |
+| 🎯 **Zero-Config Setup** | Works out of the box with sensible defaults |
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- **Node.js** (v18 or higher)
+- **npm** or **yarn**
+- **Git**
+
+### 1. Install Ollama
+
+#### macOS
+```bash
+# Using Homebrew
+brew install ollama
+
+# Or using curl
+curl -fsSL https://ollama.ai/install.sh | sh
+```
+
+#### Windows
+Download from [ollama.ai](https://ollama.ai) and run the installer.
+
+#### Linux
+```bash
+curl -fsSL https://ollama.ai/install.sh | sh
+```
+
+### 2. Start Ollama & Download Models
+
+```bash
+# Start Ollama service
+ollama serve
+
+# Download a model (in a new terminal)
+ollama pull llama3.2:3b
+
+# Verify installation
+ollama list
+```
+
+### 3. Setup Web-AI
+
+```bash
+# Clone repository
+git clone https://github.com/rudra-sah00/Web-AI.git
+cd Web-AI
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+### 4. Open & Configure
+
+1. Open `http://localhost:3000`
+2. Go to **Settings** → **Models**
+3. Select your downloaded model
+4. Start chatting! 🎉
+
+---
+
+## 📁 Project Structure
+
+```
+Web-AI/
+├── 📁 src/
+│   ├── 📁 app/                 # Next.js App Router
+│   │   ├── 📁 api/            # API endpoints
+│   │   │   ├── 📁 chats/      # Chat management
+│   │   │   ├── 📁 config/     # Configuration
+│   │   │   └── 📁 settings/   # Settings management
+│   │   ├── 📁 models/         # Model management page
+│   │   ├── 📁 modules/        # Modules page  
+│   │   └── 📁 settings/       # Settings page
+│   ├── 📁 components/         # React components
+│   │   ├── 📁 chat/          # Chat interface
+│   │   ├── 📁 sidebar/       # Navigation sidebar
+│   │   ├── 📁 theme/         # Theme management
+│   │   └── 📁 ui/            # Base UI components
+│   ├── 📁 services/          # Business logic
+│   ├── 📁 lib/               # Utilities
+│   └── 📁 config/            # Configuration
+├── 📁 docs/                  # Documentation
+│   ├── 📄 installation.md    # Setup guide
+│   ├── 📄 architecture.md    # System architecture
+│   └── 📄 api.md            # API documentation
+├── 📄 package.json
+└── 📄 README.md
+```
+
+---
+
+## 🏗️ Architecture Overview
+
+```mermaid
+graph TB
+    subgraph "🖥️ Frontend Layer"
+        A[React Components]
+        B[Next.js Router]
+        C[State Management]
+    end
+    
+    subgraph "⚙️ Service Layer"
+        D[Chat Service]
+        E[Ollama Service]
+        F[Config Service]
+        G[Settings Service]
+    end
+    
+    subgraph "🔌 External Services"
+        H[Ollama Server]
+        I[File System]
+        J[Local Storage]
+    end
+    
+    A --> D
+    A --> F
+    B --> A
+    D --> E
+    E --> H
+    F --> I
+    C --> J
+    
+    style A fill:#61dafb
+    style H fill:#ff6b35
+    style I fill:#4ade80
+```
+
+---
+
+## 🛠️ Tech Stack
+
+### Core Framework
+- **[Next.js 15](https://nextjs.org/)** - Full-stack React framework with App Router
+- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe development
+- **[React 19](https://reactjs.org/)** - User interface library
+
+### Styling & UI
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Shadcn/ui](https://ui.shadcn.com/)** - Modern component library
+- **[Lucide React](https://lucide.dev/)** - Beautiful icon set
+- **[Lottie React](https://www.npmjs.com/package/lottie-react)** - Smooth animations
+
+### AI Integration
+- **[Ollama](https://ollama.ai/)** - Local AI model runtime
+- **Server-Sent Events** - Real-time streaming responses
+- **Custom Context Engine** - Intelligent conversation continuity
+
+### Development Tools
+- **ESLint** - Code linting and quality
+- **PostCSS** - CSS processing
+- **Autoprefixer** - CSS vendor prefixes
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| **[📖 Installation Guide](./docs/installation.md)** | Comprehensive setup instructions |
+| **[🏗️ Architecture Guide](./docs/architecture.md)** | System design and patterns |
+| **[🔌 API Documentation](./docs/api.md)** | REST API reference |
+
+---
+
+## 🔧 Configuration
+
+### Environment Variables
+Create `.env.local`:
+```env
+# Ollama Configuration
+OLLAMA_BASE_URL=http://localhost:11434
+
+# Application Settings
+NEXT_PUBLIC_APP_NAME=Web-AI
+NEXT_PUBLIC_APP_VERSION=1.0.0
+```
+
+### Model Configuration
+```json
+{
+  "defaultModel": "llama3.2:3b",
+  "modelConfigs": {
+    "llama3.2:3b": {
+      "name": "Llama 3.2 3B",
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "max_tokens": 2048
+      }
+    }
+  }
+}
+```
+
+---
+
+## 💡 Usage Examples
+
+### Basic Chat
+```typescript
+// Start a conversation
+const response = await ChatService.generateStreamingResponse(
+  "Explain quantum computing",
+  chatHistory,
+  (chunk) => console.log(chunk)
+);
+```
+
+### Smart Context
+```typescript
+// The AI understands references
+User: "Write a Python function to calculate factorial"
+AI: [provides factorial function]
+
+User: "Now write that in Java"
+AI: [converts the factorial function to Java]
+
+User: "Add error handling to it"
+AI: [adds error handling to the Java version]
+```
+
+### Model Management
+```typescript
+// Get available models
+const models = await OllamaService.getAvailableModels();
+
+// Install a new model
+await OllamaService.pullModel("llama3.1:8b", onProgress);
+```
+
+---
+
+## 🎯 Key Capabilities
+
+### 🧠 Intelligent Context Management
+- **Conversation Memory**: Maintains chat history for better responses
+- **Smart References**: Understands "that", "it", "this" from previous context
+- **Adaptive Prompting**: Adjusts based on conversation type (coding, Q&A, etc.)
+
+### 🔄 Real-time Streaming
+- **Live Responses**: See AI responses as they're generated
+- **Progress Indicators**: Visual feedback during generation
+- **Error Recovery**: Graceful handling of connection issues
+
+### 🎨 Modern Interface
+- **ChatGPT-style UI**: Familiar and intuitive design
+- **Dark/Light Themes**: Automatic system preference detection
+- **Responsive Layout**: Works on all device sizes
+- **Smooth Animations**: Lottie-powered micro-interactions
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our contributing guidelines:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
+3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
+4. **Push** to the branch (`git push origin feature/AmazingFeature`)
+5. **Open** a Pull Request
+
+---
+
+## 🛟 Support & Troubleshooting
+
+### Common Issues
+
+#### Ollama Connection Error
+```bash
+# Check if Ollama is running
+ollama serve
+
+# Verify accessibility
+curl http://localhost:11434/api/tags
+```
+
+#### No Models Available
+```bash
+# Install a model
+ollama pull llama3.2:3b
+
+# List installed models
+ollama list
+```
+
+#### Port Already in Use
+```bash
+# Use different port
+npm run dev -- -p 3001
+```
+
+### Getting Help
+- 📖 Check the [Installation Guide](./docs/installation.md)
+- 🏗️ Review the [Architecture Guide](./docs/architecture.md)
+- 🔌 Consult the [API Documentation](./docs/api.md)
+- 🐛 [Open an Issue](https://github.com/rudra-sah00/Web-AI/issues)
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **[Ollama](https://ollama.ai/)** - For providing the local AI runtime
+- **[Vercel](https://vercel.com/)** - For the excellent Next.js framework
+- **[Shadcn](https://ui.shadcn.com/)** - For the beautiful component library
+- **[Tailwind CSS](https://tailwindcss.com/)** - For the utility-first CSS framework
+
+---
+
 <div align="center">
-  <h1>🚀 Ollama Web AI</h1>
-  <p><em>A sophisticated web interface for seamless AI model interaction through Ollama</em></p>
-  
-  <div>
-    <img src="https://img.shields.io/badge/Next.js-15.3.1-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
-    <img src="https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
-    <img src="https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
-    <img src="https://img.shields.io/badge/TailwindCSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS" />
-    <img src="https://img.shields.io/badge/Ollama-AI-FF6B35?style=for-the-badge&logo=artificial-intelligence&logoColor=white" alt="Ollama" />
-  </div>
-  
-  <br />
-  
+  <p><strong>Built with ❤️ for the local AI community</strong></p>
   <p>
-    <strong>Transform your local AI experience</strong> with this production-ready web application that bridges the gap between powerful Ollama models and intuitive user interaction.
+    <a href="https://github.com/rudra-sah00/Web-AI">⭐ Star this project</a> •
+    <a href="https://github.com/rudra-sah00/Web-AI/issues">🐛 Report Bug</a> •
+    <a href="https://github.com/rudra-sah00/Web-AI/issues">💡 Request Feature</a>
+  </p>
+</div>
+Download from [ollama.ai](https://ollama.ai) and run the installer.
+
+#### Linux
+```bash
+curl -fsSL https://ollama.ai/install.sh | sh
+```
+
+### 2. Start Ollama & Download Models
+
+```bash
+# Start Ollama service
+ollama serve
+
+# Download a model (in a new terminal)
+ollama pull llama3.2:3b
+
+# Verify installation
+ollama list
+```
+
+### 3. Setup Web-AI
+
+```bash
+# Clone repository
+git clone https://github.com/rudra-sah00/Web-AI.git
+cd Web-AI
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+### 4. Open & Configure
+
+1. Open `http://localhost:3000`
+2. Go to **Settings** → **Models**
+3. Select your downloaded model
+4. Start chatting! 🎉
+
+---
+
+## 📁 Project Structure
+
+```
+Web-AI/
+├── 📁 src/
+│   ├── 📁 app/                 # Next.js App Router
+│   │   ├── 📁 api/            # API endpoints
+│   │   │   ├── 📁 chats/      # Chat management
+│   │   │   ├── 📁 config/     # Configuration
+│   │   │   └── 📁 settings/   # Settings management
+│   │   ├── 📁 models/         # Model management page
+│   │   ├── 📁 modules/        # Modules page  
+│   │   └── 📁 settings/       # Settings page
+│   ├── 📁 components/         # React components
+│   │   ├── 📁 chat/          # Chat interface
+│   │   ├── 📁 sidebar/       # Navigation sidebar
+│   │   ├── 📁 theme/         # Theme management
+│   │   └── 📁 ui/            # Base UI components
+│   ├── 📁 services/          # Business logic
+│   ├── 📁 lib/               # Utilities
+│   └── 📁 config/            # Configuration
+├── 📁 docs/                  # Documentation
+│   ├── 📄 installation.md    # Setup guide
+│   ├── 📄 architecture.md    # System architecture
+│   └── 📄 api.md            # API documentation
+├── 📄 package.json
+└── 📄 README.md
+```
+
+---
+
+## 🏗️ Architecture Overview
+
+```mermaid
+graph TB
+    subgraph "🖥️ Frontend Layer"
+        A[React Components]
+        B[Next.js Router]
+        C[State Management]
+    end
+    
+    subgraph "⚙️ Service Layer"
+        D[Chat Service]
+        E[Ollama Service]
+        F[Config Service]
+        G[Settings Service]
+    end
+    
+    subgraph "🔌 External Services"
+        H[Ollama Server]
+        I[File System]
+        J[Local Storage]
+    end
+    
+    A --> D
+    A --> F
+    B --> A
+    D --> E
+    E --> H
+    F --> I
+    C --> J
+    
+    style A fill:#61dafb
+    style H fill:#ff6b35
+    style I fill:#4ade80
+```
+
+---
+
+## 🛠️ Tech Stack
+
+### Core Framework
+- **[Next.js 15](https://nextjs.org/)** - Full-stack React framework with App Router
+- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe development
+- **[React 19](https://reactjs.org/)** - User interface library
+
+### Styling & UI
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Shadcn/ui](https://ui.shadcn.com/)** - Modern component library
+- **[Lucide React](https://lucide.dev/)** - Beautiful icon set
+- **[Lottie React](https://www.npmjs.com/package/lottie-react)** - Smooth animations
+
+### AI Integration
+- **[Ollama](https://ollama.ai/)** - Local AI model runtime
+- **Server-Sent Events** - Real-time streaming responses
+- **Custom Context Engine** - Intelligent conversation continuity
+
+### Development Tools
+- **ESLint** - Code linting and quality
+- **PostCSS** - CSS processing
+- **Autoprefixer** - CSS vendor prefixes
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| **[📖 Installation Guide](./docs/installation.md)** | Comprehensive setup instructions |
+| **[🏗️ Architecture Guide](./docs/architecture.md)** | System design and patterns |
+| **[🔌 API Documentation](./docs/api.md)** | REST API reference |
+
+---
+
+## 🔧 Configuration
+
+### Environment Variables
+Create `.env.local`:
+```env
+# Ollama Configuration
+OLLAMA_BASE_URL=http://localhost:11434
+
+# Application Settings
+NEXT_PUBLIC_APP_NAME=Web-AI
+NEXT_PUBLIC_APP_VERSION=1.0.0
+```
+
+### Model Configuration
+```json
+{
+  "defaultModel": "llama3.2:3b",
+  "modelConfigs": {
+    "llama3.2:3b": {
+      "name": "Llama 3.2 3B",
+      "parameters": {
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "max_tokens": 2048
+      }
+    }
+  }
+}
+```
+
+---
+
+## 💡 Usage Examples
+
+### Basic Chat
+```typescript
+// Start a conversation
+const response = await ChatService.generateStreamingResponse(
+  "Explain quantum computing",
+  chatHistory,
+  (chunk) => console.log(chunk)
+);
+```
+
+### Smart Context
+```typescript
+// The AI understands references
+User: "Write a Python function to calculate factorial"
+AI: [provides factorial function]
+
+User: "Now write that in Java"
+AI: [converts the factorial function to Java]
+
+User: "Add error handling to it"
+AI: [adds error handling to the Java version]
+```
+
+### Model Management
+```typescript
+// Get available models
+const models = await OllamaService.getAvailableModels();
+
+// Install a new model
+await OllamaService.pullModel("llama3.1:8b", onProgress);
+```
+
+---
+
+## 🎯 Key Capabilities
+
+### 🧠 Intelligent Context Management
+- **Conversation Memory**: Maintains chat history for better responses
+- **Smart References**: Understands "that", "it", "this" from previous context
+- **Adaptive Prompting**: Adjusts based on conversation type (coding, Q&A, etc.)
+
+### 🔄 Real-time Streaming
+- **Live Responses**: See AI responses as they're generated
+- **Progress Indicators**: Visual feedback during generation
+- **Error Recovery**: Graceful handling of connection issues
+
+### 🎨 Modern Interface
+- **ChatGPT-style UI**: Familiar and intuitive design
+- **Dark/Light Themes**: Automatic system preference detection
+- **Responsive Layout**: Works on all device sizes
+- **Smooth Animations**: Lottie-powered micro-interactions
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our contributing guidelines:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
+3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
+4. **Push** to the branch (`git push origin feature/AmazingFeature`)
+5. **Open** a Pull Request
+
+---
+
+## 🛟 Support & Troubleshooting
+
+### Common Issues
+
+#### Ollama Connection Error
+```bash
+# Check if Ollama is running
+ollama serve
+
+# Verify accessibility
+curl http://localhost:11434/api/tags
+```
+
+#### No Models Available
+```bash
+# Install a model
+ollama pull llama3.2:3b
+
+# List installed models
+ollama list
+```
+
+#### Port Already in Use
+```bash
+# Use different port
+npm run dev -- -p 3001
+```
+
+### Getting Help
+- 📖 Check the [Installation Guide](./docs/installation.md)
+- 🏗️ Review the [Architecture Guide](./docs/architecture.md)
+- 🔌 Consult the [API Documentation](./docs/api.md)
+- 🐛 [Open an Issue](https://github.com/rudra-sah00/Web-AI/issues)
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **[Ollama](https://ollama.ai/)** - For providing the local AI runtime
+- **[Vercel](https://vercel.com/)** - For the excellent Next.js framework
+- **[Shadcn](https://ui.shadcn.com/)** - For the beautiful component library
+- **[Tailwind CSS](https://tailwindcss.com/)** - For the utility-first CSS framework
+
+---
+
+<div align="center">
+  <p><strong>Built with ❤️ for the local AI community</strong></p>
+  <p>
+    <a href="https://github.com/rudra-sah00/Web-AI">⭐ Star this project</a> •
+    <a href="https://github.com/rudra-sah00/Web-AI/issues">🐛 Report Bug</a> •
+    <a href="https://github.com/rudra-sah00/Web-AI/issues">💡 Request Feature</a>
   </p>
 </div>
 

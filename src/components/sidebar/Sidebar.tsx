@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import Lottie from "lottie-react";
 import { 
   MessageSquare, 
   Settings, 
@@ -11,10 +12,8 @@ import {
   ChevronRight,
   PanelRight, 
   Plus,
-  Cpu,
   Loader2,
   Trash2,
-  Edit3,
   MoreHorizontal,
   Archive,
   Star,
@@ -25,6 +24,7 @@ interface Chat {
   id: string;
   title: string;
   messages: any[];
+  messageCount?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -36,6 +36,11 @@ interface SidebarProps {
   onCollapseChange?: (collapsed: boolean) => void;
   autoHide?: boolean;
 }
+
+// AI Brain Animation Data
+const aiBrainAnimation = {
+  "v":"5.9.0","fr":30,"ip":0,"op":60,"w":500,"h":500,"nm":"48 Ai In Finance","ddd":0,"assets":[],"layers":[{"ddd":0,"ind":1,"ty":3,"nm":"Null Object","sr":1,"ks":{"o":{"a":0,"k":0,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[250,250,0],"ix":2,"l":2},"a":{"a":0,"k":[50,50,0],"ix":1,"l":2},"s":{"a":0,"k":[500,500,100],"ix":6,"l":2}},"ao":0,"ip":0,"op":90,"st":0,"bm":0},{"ddd":0,"ind":2,"ty":3,"nm":"Ai & box","parent":11,"sr":1,"ks":{"o":{"a":0,"k":0,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[0,2,0],"ix":2,"l":2},"a":{"a":0,"k":[50,50,0],"ix":1,"l":2},"s":{"a":1,"k":[{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"t":0,"s":[100,100,100]},{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"t":8.675,"s":[90,90,100]},{"i":{"x":[0.833,0.833,0.833],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"t":17.333,"s":[110,110,100]},{"t":26,"s":[100,100,100]}],"ix":6,"l":2}},"ao":0,"ip":0,"op":90,"st":0,"bm":0},{"ddd":0,"ind":3,"ty":4,"nm":"Ai","parent":2,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":1,"k":[{"i":{"x":0.667,"y":1},"o":{"x":0.333,"y":0},"t":0,"s":[50,52,0],"to":[0,-1.167,0],"ti":[0,0,0]},{"i":{"x":0.667,"y":1},"o":{"x":0.333,"y":0},"t":30,"s":[50,45,0],"to":[0,0,0],"ti":[0,-1.167,0]},{"t":60,"s":[50,52,0]}],"ix":2,"l":2},"a":{"a":0,"k":[4.955,6.355,0],"ix":1,"l":2},"s":{"a":0,"k":[500,500,100],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0.186,0],[0.127,0.127],[0,0.186],[0,0],[-0.127,0.132],[-0.187,0],[-0.133,-0.132],[0,-0.186],[0,0],[0.132,-0.127]],"o":[[-0.187,0],[-0.127,-0.127],[0,0],[0,-0.186],[0.127,-0.132],[0.186,0],[0.132,0.132],[0,0],[0,0.186],[-0.133,0.127]],"v":[[10.775,11.558],[10.304,11.367],[10.114,10.897],[10.114,1.828],[10.304,1.35],[10.775,1.152],[11.253,1.35],[11.451,1.828],[11.451,10.897],[11.253,11.367]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.109803922474,0.04705882445,0.20000000298,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0]],"v":[[1.222,7.634],[5.19,7.634],[3.206,2.857]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ind":1,"ty":"sh","ix":2,"ks":{"a":0,"k":{"i":[[0.303,0],[0.117,0.127],[0,0.186],[-0.049,0.118],[0,0],[-0.142,0.123],[-0.216,0],[0,0],[-0.138,-0.122],[-0.069,-0.157],[0,0],[0,-0.078],[0.118,-0.127],[0.206,0],[0.118,0.275],[0,0],[0,0],[0,0]],"o":[[-0.206,0],[-0.118,-0.127],[0,-0.078],[0,0],[0.068,-0.157],[0.142,-0.122],[0,0],[0.225,0],[0.137,0.123],[0,0],[0.049,0.118],[0,0.186],[-0.118,0.127],[-0.304,0],[0,0],[0,0],[0,0],[-0.117,0.275]],"v":[[-0.88,11.558],[-1.365,11.367],[-1.542,10.897],[-1.468,10.603],[2.28,1.755],[2.596,1.335],[3.132,1.152],[3.279,1.152],[3.823,1.335],[4.132,1.755],[7.88,10.603],[7.953,10.897],[7.777,11.367],[7.292,11.558],[6.66,11.147],[5.705,8.854],[0.707,8.854],[-0.249,11.147]],"c":true},"ix":2},"nm":"Path 2","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.109803922474,0.04705882445,0.20000000298,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 2","np":3,"cix":2,"bm":0,"ix":2,"mn":"ADBE Vector Group","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 3","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":90,"st":0,"bm":0},{"ddd":0,"ind":10,"ty":4,"nm":"Mrain","parent":11,"sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[0,0,0],"ix":2,"l":2},"a":{"a":0,"k":[4.955,6.355,0],"ix":1,"l":2},"s":{"a":1,"k":[{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"t":0,"s":[500,500,100]},{"i":{"x":[0.3,0.3,0.3],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"t":7.5,"s":[525,475,100]},{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.7,0.7,0.7],"y":[0,0,0]},"t":15,"s":[475,525,100]},{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"t":22.5,"s":[525,475,100]},{"t":30,"s":[500,500,100]}],"ix":6,"l":2}},"ao":0,"shapes":[{"ty":"gr","it":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,-3.822],[0,0],[3.832,0],[0,3.832],[-0.03,0.21],[-1.691,0],[0,3.832],[0.26,0.71],[0.57,0.65],[0.02,0.02],[-0.15,0],[0,3.832],[3.301,0.53],[0,2.681],[3.782,0.04],[-0.06,0.11],[-0.12,0.51],[0,0.56],[3.832,0],[0.72,-0.27],[3.111,0]],"o":[[0,0],[0,3.832],[-3.832,0],[0,-0.21],[1.211,0.99],[3.822,0],[0,-0.8],[-0.28,-0.84],[-0.02,-0.02],[0.15,0.02],[3.832,0],[0,-3.442],[2.231,-1.151],[0,-3.792],[0.06,-0.1],[0.23,-0.45],[0.13,-0.52],[0,-3.822],[-0.81,0],[-0.88,-2.821],[-3.832,0]],"v":[[6.101,-16.29],[6.101,28.99],[13.034,35.933],[19.977,28.99],[19.937,28.36],[24.389,29.961],[31.322,23.018],[30.922,20.736],[29.621,18.485],[29.571,18.425],[30.012,18.445],[36.955,11.502],[31.132,4.669],[34.884,-1.493],[28.031,-8.427],[28.201,-8.737],[28.731,-10.187],[28.931,-11.828],[21.988,-18.761],[19.667,-18.351],[13.034,-23.223]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.717647075653,0.654901981354,0.949019610882,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 11","np":2,"cix":2,"bm":0,"ix":11,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,-3.822],[0,0],[3.832,0],[0,3.832],[-0.03,0.21],[1.691,0],[0,3.832],[-0.26,0.71],[-0.57,0.65],[-0.02,0.02],[0.15,0],[0,3.832],[-3.301,0.53],[0,2.681],[-3.782,0.04],[0.06,0.11],[0.12,0.51],[0,0.56],[-3.832,0],[-0.72,-0.27],[-3.111,0]],"o":[[0,0],[0,3.832],[-3.832,0],[0,-0.21],[-1.211,0.99],[-3.822,0],[0,-0.8],[0.28,-0.84],[0.02,-0.02],[-0.15,0.02],[-3.832,0],[0,-3.442],[-2.231,-1.151],[0,-3.792],[-0.06,-0.1],[-0.23,-0.45],[-0.13,-0.52],[0,-3.822],[0.81,0],[0.88,-2.821],[3.832,0]],"v":[[3.809,-16.29],[3.809,28.99],[-3.125,35.933],[-10.068,28.99],[-10.028,28.36],[-14.48,29.961],[-21.413,23.018],[-21.013,20.736],[-19.712,18.485],[-19.662,18.425],[-20.102,18.445],[-27.045,11.502],[-21.223,4.669],[-24.974,-1.493],[-18.121,-8.427],[-18.291,-8.737],[-18.822,-10.187],[-19.022,-11.828],[-12.079,-18.761],[-9.758,-18.351],[-3.125,-23.223]],"c":true},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"fl","c":{"a":0,"k":[0.074509806931,0.811764717102,0.470588237047,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 21","np":2,"cix":2,"bm":0,"ix":21,"mn":"ADBE Vector Group","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 5","np":21,"cix":2,"bm":0,"ix":3,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":90,"st":0,"bm":0},{"ddd":0,"ind":11,"ty":3,"nm":"Over all conto..","parent":1,"sr":1,"ks":{"o":{"a":0,"k":0,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":1,"k":[{"i":{"x":0.667,"y":1},"o":{"x":0.333,"y":0},"t":0,"s":[50,51,0],"to":[0,-0.393,0],"ti":[0,0,0]},{"i":{"x":0.667,"y":1},"o":{"x":0.333,"y":0},"t":30,"s":[50,48.641,0],"to":[0,0,0],"ti":[0,-0.393,0]},{"t":59,"s":[50,51,0]}],"ix":2,"l":2},"a":{"a":0,"k":[0,0,0],"ix":1,"l":2},"s":{"a":0,"k":[20,20,100],"ix":6,"l":2}},"ao":0,"ip":0,"op":90,"st":0,"bm":0}],"markers":[]
+};
 
 export default forwardRef(function Sidebar({ 
   isMobileOpen, 
@@ -58,6 +63,36 @@ export default forwardRef(function Sidebar({
     fetchChats();
   }, []);
 
+  // Set up polling for real-time chat updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchChats();
+    }, 5000); // Refresh every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Listen for storage events to update when chats change in other tabs/windows
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'chatUpdated') {
+        fetchChats();
+      }
+    };
+
+    const handleChatUpdate = () => {
+      fetchChats();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('chatUpdated', handleChatUpdate);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('chatUpdated', handleChatUpdate);
+    };
+  }, []);
+
   // Sync selectedChatId with current URL
   useEffect(() => {
     const match = pathname.match(/^\/chat\/(.+)$/);
@@ -69,8 +104,23 @@ export default forwardRef(function Sidebar({
   useImperativeHandle(ref, () => ({
     refreshChats: () => {
       fetchChats();
+    },
+    updateChatCount: (chatId: string) => {
+      // Trigger a refresh when a specific chat is updated
+      fetchChats();
     }
   }));
+
+  // Expose global function to trigger chat updates
+  useEffect(() => {
+    (window as any).triggerSidebarUpdate = () => {
+      fetchChats();
+    };
+
+    return () => {
+      delete (window as any).triggerSidebarUpdate;
+    };
+  }, []);
 
   // Load saved sidebar state from localStorage
   useEffect(() => {
@@ -297,11 +347,15 @@ export default forwardRef(function Sidebar({
           "transition-all duration-300",
         )}>
           <div className="relative">
-            <Cpu className={cn(
-              "h-7 w-7 flex-shrink-0 text-primary",
-              collapsed ? "scale-110 transition-transform duration-300" : "",
-            )} />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+            <Lottie 
+              animationData={aiBrainAnimation}
+              className={cn(
+                "h-12 w-12 flex-shrink-0",
+                collapsed ? "scale-110 transition-transform duration-300" : "",
+              )}
+              loop={true}
+              autoplay={true}
+            />
           </div>
         </div>
 
@@ -420,7 +474,7 @@ export default forwardRef(function Sidebar({
                           <div className="text-xs text-muted-foreground flex items-center gap-1">
                             <span>{new Date(chat.updatedAt).toLocaleDateString()}</span>
                             <span>•</span>
-                            <span>{chat.messages?.length || 0} messages</span>
+                            <span>{chat.messageCount ?? chat.messages?.length ?? 0} messages</span>
                           </div>
                         </div>
                       )}
@@ -435,18 +489,6 @@ export default forwardRef(function Sidebar({
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 hover:bg-muted"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Handle rename (you can implement this)
-                          }}
-                          title="Rename chat"
-                        >
-                          <Edit3 className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
                           className="h-7 w-7 hover:bg-destructive hover:text-destructive-foreground"
                           onClick={(e) => handleDeleteChat(chat.id, e)}
                           title="Delete chat"
@@ -458,18 +500,6 @@ export default forwardRef(function Sidebar({
                     
                     {collapsed && (
                       <div className="absolute -right-10 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-background border rounded-lg shadow-lg transition-all duration-200 flex">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 hover:bg-muted"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Handle rename
-                          }}
-                          title="Rename chat"
-                        >
-                          <Edit3 className="h-4 w-4" />
-                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"

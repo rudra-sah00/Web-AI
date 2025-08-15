@@ -76,15 +76,34 @@ function saveChatToFile(chat: ChatData): boolean {
   }
 }
 
-// GET all chats (returns metadata with empty messages array for compatibility)
+// GET all chats (returns metadata with message counts)
 export async function GET(): Promise<NextResponse> {
   const chats = getChatIndex();
-  // Add empty messages array to each chat for frontend compatibility
-  const chatsWithMessages = chats.map(chat => ({
-    ...chat,
-    messages: []
-  }));
-  return NextResponse.json(chatsWithMessages);
+  
+  // Load message counts for each chat
+  const chatsWithCounts = chats.map(chat => {
+    try {
+      const chatPath = path.join(CHATS_DIR, `${chat.id}.json`);
+      if (fs.existsSync(chatPath)) {
+        const chatData = JSON.parse(fs.readFileSync(chatPath, 'utf8'));
+        return {
+          ...chat,
+          messages: chatData.messages || [],
+          messageCount: (chatData.messages || []).length
+        };
+      }
+    } catch (error) {
+      console.error(`Error loading chat ${chat.id}:`, error);
+    }
+    
+    return {
+      ...chat,
+      messages: [],
+      messageCount: 0
+    };
+  });
+  
+  return NextResponse.json(chatsWithCounts);
 }
 
 // POST a new chat

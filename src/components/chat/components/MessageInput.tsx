@@ -350,9 +350,12 @@ export default function MessageInput({ onSendMessage, isLoading, disabled = fals
         
         {disabled && !isLoading && (
           <div className="max-w-3xl mx-auto px-4">
-            <div className="flex items-center justify-center mt-3 text-sm text-amber-400">
-              <span className="inline-block h-2 w-2 rounded-full bg-amber-500 mr-2"></span>
-              AI is thinking...
+            <div className="flex items-center justify-center mt-3 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              </div>
             </div>
           </div>
         )}

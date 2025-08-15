@@ -31,6 +31,8 @@ export default function ChatModule({
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [streamingMessage, setStreamingMessage] = useState('');
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [hasSelectedModel, setHasSelectedModel] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -170,20 +172,32 @@ export default function ChatModule({
         onChatUpdate(updatedChat);
       }
       
-      // Generate AI response using the selected Ollama model
-      const aiResponseText = await ChatService.generateResponse(
+      // Generate AI response using streaming
+      setIsGenerating(true);
+      setStreamingMessage('');
+      const streamingId = (Date.now() + 1).toString();
+      setStreamingMessageId(streamingId);
+      
+      let fullResponse = '';
+      
+      await ChatService.generateStreamingResponse(
         messageText, 
-        updatedChat.messages
+        updatedChat.messages,
+        (chunk: string) => {
+          fullResponse += chunk;
+          setStreamingMessage(fullResponse);
+        }
       );
       
+      // Create final AI response message
       const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
+        id: streamingId,
         role: "assistant",
-        content: aiResponseText,
+        content: fullResponse,
         timestamp: new Date().toISOString()
       };
 
-      // Update with AI response
+      // Update with final AI response
       updatedChat = {
         ...updatedChat,
         messages: [...updatedChat.messages, aiResponse],
@@ -208,6 +222,8 @@ export default function ChatModule({
     } finally {
       setIsLoading(false);
       setIsGenerating(false);
+      setStreamingMessage('');
+      setStreamingMessageId(null);
     }
   };
 
@@ -451,17 +467,28 @@ export default function ChatModule({
                 
                 {/* Show loading indicator when generating a response */}
                 {isGenerating && (
-                  <div className="w-full py-4 bg-muted/30 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="w-full py-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
                     <div className="max-w-4xl mx-auto px-4">
                       <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-                          <Loader2 className="h-4 w-4 text-white animate-spin" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-muted-foreground">
-                            Ollama AI is thinking...
+                        {streamingMessage ? (
+                          <>
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                              <Loader2 className="h-4 w-4 text-white animate-spin" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
+                                {streamingMessage}
+                                <span className="inline-block w-2 h-5 bg-primary animate-pulse ml-1"></span>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex items-center gap-2 ml-12">
+                            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                            <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>
