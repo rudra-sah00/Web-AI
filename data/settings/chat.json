@@ -1,0 +1,11 @@
+{
+  "streamResponses": true,
+  "saveHistory": true,
+  "maxHistoryItems": 100,
+  "autoSave": true,
+  "showTimestamps": false,
+  "enableMarkdown": true,
+  "enableCodeHighlighting": true,
+  "defaultSystemPrompt": "You are a helpful AI assistant. Be concise and accurate in your responses.",
+  "webSearchEnabled": false
+}

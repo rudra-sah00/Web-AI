@@ -1,0 +1,8 @@
+{
+  "defaultTemperature": 0.7,
+  "defaultTopP": 0.9,
+  "defaultMaxTokens": 2048,
+  "defaultModel": "llama3.2:latest",
+  "ollamaEndpoint": "http://localhost:11434",
+  "ollamaApiKey": null
+}

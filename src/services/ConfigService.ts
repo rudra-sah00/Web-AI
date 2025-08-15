@@ -87,6 +87,28 @@ class ConfigService {
    * Get app settings
    */
   getSettings(): AppSettings {
+    // Ensure we always return a valid settings object
+    if (!this.config.defaultSettings) {
+      return {
+        apiEndpoint: "http://localhost:11434",
+        defaultModel: "qwen:0.5b",
+        chatSettings: {
+          streamResponses: true,
+          saveHistory: true,
+          maxHistoryItems: 100
+        }
+      };
+    }
+    
+    // Ensure chatSettings exists
+    if (!this.config.defaultSettings.chatSettings) {
+      this.config.defaultSettings.chatSettings = {
+        streamResponses: true,
+        saveHistory: true,
+        maxHistoryItems: 100
+      };
+    }
+    
     return this.config.defaultSettings;
   }
   

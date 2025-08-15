@@ -131,9 +131,9 @@ function deleteChatFile(id: string): boolean {
 // GET a specific chat by ID
 export async function GET(
   request: Request, 
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   
   if (!id) {
     return NextResponse.json({ error: 'Missing chat ID' }, { status: 400 });
@@ -151,9 +151,9 @@ export async function GET(
 // POST (create) a new chat with specific ID
 export async function POST(
   request: Request, 
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   const chat = await request.json() as Chat;
   
   // Ensure the ID in the URL matches the chat
@@ -193,9 +193,9 @@ export async function POST(
 // PUT to update a specific chat
 export async function PUT(
   request: Request, 
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   const updatedChat = await request.json() as Chat;
   
   // Ensure the ID in the URL matches the chat
@@ -235,9 +235,9 @@ export async function PUT(
 // DELETE a specific chat
 export async function DELETE(
   request: Request, 
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
   
   // Delete the chat file
   const deleteSuccess = deleteChatFile(id);

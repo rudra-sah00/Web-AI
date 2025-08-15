@@ -205,33 +205,6 @@ class SettingsService {
     }
   }
 
-  /**
-   * Reset settings to defaults
-   */
-  async resetSettings(): Promise<boolean> {
-    return this.saveSettings(DEFAULT_SETTINGS);
-  }
-
-  /**
-   * Export settings as JSON
-   */
-  exportSettings(): string {
-    return JSON.stringify(this.settings, null, 2);
-  }
-
-  /**
-   * Import settings from JSON
-   */
-  async importSettings(jsonString: string): Promise<boolean> {
-    try {
-      const importedSettings = JSON.parse(jsonString);
-      return this.saveSettings(importedSettings);
-    } catch (error) {
-      console.error('Error importing settings:', error);
-      return false;
-    }
-  }
-
   private notifySubscribers(): void {
     this.subscribers.forEach(callback => callback(this.settings));
   }
@@ -252,10 +225,7 @@ export function useSettings() {
   return {
     settings,
     updateSetting: settingsService.updateSetting.bind(settingsService),
-    saveSettings: settingsService.saveSettings.bind(settingsService),
-    resetSettings: settingsService.resetSettings.bind(settingsService),
-    exportSettings: settingsService.exportSettings.bind(settingsService),
-    importSettings: settingsService.importSettings.bind(settingsService)
+    saveSettings: settingsService.saveSettings.bind(settingsService)
   };
 }
 

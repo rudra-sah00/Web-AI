@@ -71,7 +71,7 @@
     "defaultTemperature": 0.7,
     "defaultTopP": 0.9,
     "defaultMaxTokens": 2048,
-    "defaultModel": "llama3.2:3b"
+    "defaultModel": null
   },
   "apiEndpoint": "http://localhost:11434"
 }

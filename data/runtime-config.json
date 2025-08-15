@@ -58,12 +58,12 @@
   ],
   "defaultSettings": {
     "apiEndpoint": "http://localhost:11434",
-    "defaultModel": "qwen:0.5b",
+    "defaultModel": null,
     "chatSettings": {
       "streamResponses": true,
       "saveHistory": true,
       "maxHistoryItems": 100,
-      "defaultModel": "qwen:0.5b"
+      "defaultModel": null
     }
   }
 }

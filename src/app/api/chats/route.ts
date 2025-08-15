@@ -76,10 +76,15 @@ function saveChatToFile(chat: ChatData): boolean {
   }
 }
 
-// GET all chats (returns only metadata, not full messages)
+// GET all chats (returns metadata with empty messages array for compatibility)
 export async function GET(): Promise<NextResponse> {
   const chats = getChatIndex();
-  return NextResponse.json(chats);
+  // Add empty messages array to each chat for frontend compatibility
+  const chatsWithMessages = chats.map(chat => ({
+    ...chat,
+    messages: []
+  }));
+  return NextResponse.json(chatsWithMessages);
 }
 
 // POST a new chat

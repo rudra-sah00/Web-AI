@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, MessageSquare, Cpu, Settings, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 // Import our modular components
-import ChatHeader from "./components/ChatHeader";
 import MessageItem from "./components/MessageItem";
 import MessageInput from "./components/MessageInput";
 import PromptTemplates from "./components/PromptTemplates";
@@ -12,23 +13,51 @@ import PromptTemplates from "./components/PromptTemplates";
 // Import types and service
 import { Chat, Message } from "./components/types";
 import { ChatService } from "./utils/ChatService";
+import configService from "@/services/ConfigService";
 
 interface ChatModuleProps {
   sidebarCollapsed: boolean;
   selectedChatId?: string;
   onChatUpdate?: (chat: Chat) => void;
+  onMessageSent?: () => void; // Callback for when a message is sent
 }
 
 export default function ChatModule({ 
   sidebarCollapsed, 
   selectedChatId, 
-  onChatUpdate 
+  onChatUpdate,
+  onMessageSent 
 }: ChatModuleProps) {
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [hasSelectedModel, setHasSelectedModel] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Check if a model is selected
+  const checkModelSelection = () => {
+    const settings = configService.getSettings();
+    const isModelSelected = Boolean(settings.defaultModel && settings.defaultModel !== null && settings.defaultModel !== "");
+    setHasSelectedModel(isModelSelected);
+    return isModelSelected;
+  };
+
+  // Check model selection on mount and when config changes
+  useEffect(() => {
+    checkModelSelection();
+    
+    // Listen for window focus to refresh model selection state
+    const handleFocus = () => {
+      checkModelSelection();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
 
   // Load chat data when selectedChatId changes
   useEffect(() => {
@@ -84,12 +113,36 @@ export default function ChatModule({
   };
 
   const handleSendMessage = async (messageText: string) => {
-    if (!currentChat) return;
     setSaveError(null);
+    
+    // Check if a model is selected before proceeding
+    if (!checkModelSelection()) {
+      setSaveError("Please select a model first! Go to Settings → Models to choose a model before starting a chat.");
+      return;
+    }
+    
     setIsLoading(true);
     setIsGenerating(true);
 
     try {
+      // If no chat is selected, create a new one automatically
+      let chatToUpdate = currentChat;
+      
+      if (!chatToUpdate) {
+        const newChatId = Date.now().toString();
+        chatToUpdate = {
+          id: newChatId,
+          title: messageText.slice(0, 30) + (messageText.length > 30 ? "..." : ""),
+          messages: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        
+        // Create the new chat first
+        await ChatService.createChat(chatToUpdate);
+        setCurrentChat(chatToUpdate);
+      }
+
       const newMessage: Message = {
         id: Date.now().toString(),
         role: "user",
@@ -99,18 +152,23 @@ export default function ChatModule({
       
       // First update the UI with just the user message
       let updatedChat: Chat = {
-        ...currentChat,
-        messages: [...currentChat.messages, newMessage],
+        ...chatToUpdate,
+        messages: [...chatToUpdate.messages, newMessage],
         updatedAt: new Date().toISOString()
       };
 
       // Update title if it's the first message
-      if (currentChat.messages.length === 0) {
+      if (chatToUpdate.messages.length === 0) {
         updatedChat.title = messageText.slice(0, 30) + (messageText.length > 30 ? "..." : "");
       }
 
       setCurrentChat(updatedChat);
       await ChatService.updateChat(updatedChat);
+      
+      // Notify parent component about the chat creation/update for sidebar refresh
+      if (onChatUpdate) {
+        onChatUpdate(updatedChat);
+      }
       
       // Generate AI response using the selected Ollama model
       const aiResponseText = await ChatService.generateResponse(
@@ -272,12 +330,82 @@ export default function ChatModule({
     handleSendMessage(promptText);
   };
 
-  if (!selectedChatId) {
+  // Model selection prompt component
+  const ModelSelectionPrompt = () => (
+    <div className="flex flex-col items-center justify-center h-full p-8 max-w-4xl mx-auto">
+      <div className="text-center space-y-6">
+        {/* Icon */}
+        <div className="flex justify-center">
+          <div className="p-4 rounded-full bg-orange-100 dark:bg-orange-900/20">
+            <AlertCircle className="h-12 w-12 text-orange-600 dark:text-orange-400" />
+          </div>
+        </div>
+        
+        {/* Main message */}
+        <div>
+          <h2 className="text-2xl font-semibold text-foreground mb-2">
+            Select a Model to Start Chatting
+          </h2>
+          <p className="text-muted-foreground max-w-md mx-auto">
+            To begin a conversation, please select an AI model first. You can choose from available models in the settings.
+          </p>
+        </div>
+        
+        {/* Action button */}
+        <div className="pt-4">
+          <Link href="/models">
+            <Button className="flex items-center gap-2 px-6 py-3 text-base">
+              <Settings className="h-5 w-5" />
+              Go to Model Settings
+            </Button>
+          </Link>
+        </div>
+        
+        {/* Additional info */}
+        <div className="text-sm text-muted-foreground max-w-lg mx-auto">
+          <p>
+            💡 <strong>Tip:</strong> You can install and manage different AI models like Llama, Mistral, or CodeLlama 
+            based on your needs. Each model has different capabilities and performance characteristics.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Welcome screen component
+  const WelcomeScreen = () => (
+    <div className="flex flex-col items-center justify-center h-full p-8 max-w-4xl mx-auto">
+      {/* Help message above input */}
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-medium text-foreground">
+          How can I help you?
+        </h2>
+      </div>
+      
+      {/* Message Input in the center */}
+      <div className="w-full">
+        <MessageInput 
+          onSendMessage={handleSendMessage}
+          isLoading={isGenerating}
+          disabled={!hasSelectedModel}
+          placeholder={!hasSelectedModel ? "Please select a model first to start chatting..." : undefined}
+          onMessageSend={onMessageSent}
+          showBorder={false}
+        />
+      </div>
+    </div>
+  );
+
+  // Show ModelSelectionPrompt or WelcomeScreen when no chat exists or current chat has no messages
+  if (!currentChat || (currentChat && currentChat.messages.length === 0)) {
     return (
-      <div className="flex flex-col items-center justify-center h-full">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Welcome to Ollama AI Chat</h2>
-          <p className="text-muted-foreground mb-6">Select a chat from the sidebar or create a new one to get started</p>
+      <div 
+        className={`flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out bg-background ${
+          sidebarCollapsed ? "ml-16" : "ml-0 md:ml-72"
+        }`}
+      >
+        <div className="flex-1 overflow-y-auto bg-background animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {!hasSelectedModel ? <ModelSelectionPrompt /> : <WelcomeScreen />}
         </div>
       </div>
     );
@@ -285,34 +413,31 @@ export default function ChatModule({
 
   return (
     <div 
-      className={`flex flex-col h-full transition-all duration-200 ${
-        sidebarCollapsed ? "ml-16" : "ml-0 md:ml-64"
+      className={`flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out bg-background animate-in fade-in slide-in-from-bottom-4 duration-500 ${
+        sidebarCollapsed ? "ml-16" : "ml-0 md:ml-72"
       }`}
     >
-      {/* Chat header component */}
-      <ChatHeader 
-        title={currentChat?.title || "New Chat"}
-        hasMessages={Boolean(currentChat?.messages.length)}
-        onClearChat={handleClearChat}
-      />
-
-      {/* Messages container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {/* Messages container with proper scrolling */}
+      <div className="flex-1 overflow-y-auto bg-background min-h-0">
         {isLoading && !currentChat?.messages.length ? (
           <div className="flex justify-center items-center h-full">
-            <Loader2 className="h-8 w-8 animate-spin transition-transform duration-300 group-hover:scale-110" />
+            <Loader2 className="h-8 w-8 animate-spin transition-transform duration-300 group-hover:scale-110 text-white" />
           </div>
         ) : (
-          <>
+          <div className="min-h-full">
             {saveError && (
-              <div className="bg-destructive/15 text-destructive p-3 rounded-md mb-4">
-                {saveError}
+              <div className="max-w-4xl mx-auto px-4 py-4">
+                <div className="bg-red-600/20 text-red-400 p-3 rounded-md border border-red-600/30">
+                  {saveError}
+                </div>
               </div>
             )}
             
             {/* Show prompt templates when chat is empty */}
             {currentChat?.messages.length === 0 ? (
-              <PromptTemplates onSelectPrompt={handlePromptSelect} />
+              <div className="max-w-4xl mx-auto px-4 py-8">
+                <PromptTemplates onSelectPrompt={handlePromptSelect} />
+              </div>
             ) : (
               <>
                 {currentChat?.messages.map((message) => (
@@ -326,26 +451,38 @@ export default function ChatModule({
                 
                 {/* Show loading indicator when generating a response */}
                 {isGenerating && (
-                  <div className="flex items-start gap-3">
-                    <div className="rounded-full bg-primary/10 p-2 w-8 h-8 flex items-center justify-center">
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                  <div className="w-full py-4 bg-muted/30 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="max-w-4xl mx-auto px-4">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                          <Loader2 className="h-4 w-4 text-white animate-spin" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-muted-foreground">
+                            Ollama AI is thinking...
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-muted-foreground">Generating response...</div>
                   </div>
                 )}
               </>
             )}
-          </>
+            <div ref={messagesEndRef} />
+          </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Message input component */}
-      <MessageInput 
-        onSendMessage={handleSendMessage}
-        isLoading={isLoading}
-        disabled={isGenerating}
-      />
+      <div className="flex-shrink-0 transition-all duration-300 ease-in-out">
+        <MessageInput 
+          onSendMessage={handleSendMessage}
+          isLoading={isLoading}
+          disabled={isGenerating || !hasSelectedModel}
+          placeholder={!hasSelectedModel ? "Please select a model first to start chatting..." : undefined}
+          onMessageSend={onMessageSent}
+        />
+      </div>
     </div>
   );
 }

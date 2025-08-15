@@ -6,32 +6,22 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Download, Upload, RotateCcw } from 'lucide-react';
-import { useSettings } from '@/services/SettingsService';
+import { useAppearanceSettings } from '@/services/AppearanceSettingsService';
 
 export function AppearanceSettings() {
-  const { settings, updateSetting, resetSettings, exportSettings, importSettings } = useSettings();
+  const { settings, updateSetting, updateTheme, updateFontSettings } = useAppearanceSettings();
 
   const fontFamilies = [
-    { value: 'system', label: 'System Default' },
-    { value: 'inter', label: 'Inter' },
-    { value: 'roboto', label: 'Roboto' },
-    { value: 'open-sans', label: 'Open Sans' },
-    { value: 'source-code-pro', label: 'Source Code Pro (Monospace)' },
-    { value: 'fira-code', label: 'Fira Code (Monospace)' }
-  ];
-
-  const accentColors = [
-    { value: 'blue', label: 'Blue', color: 'bg-blue-500' },
-    { value: 'green', label: 'Green', color: 'bg-green-500' },
-    { value: 'purple', label: 'Purple', color: 'bg-purple-500' },
-    { value: 'orange', label: 'Orange', color: 'bg-orange-500' },
-    { value: 'red', label: 'Red', color: 'bg-red-500' },
-    { value: 'pink', label: 'Pink', color: 'bg-pink-500' },
-    { value: 'indigo', label: 'Indigo', color: 'bg-indigo-500' },
-    { value: 'teal', label: 'Teal', color: 'bg-teal-500' }
+    { value: 'system', label: 'System Default', category: 'System' },
+    { value: 'inter', label: 'Inter', category: 'Sans Serif' },
+    { value: 'roboto', label: 'Roboto', category: 'Sans Serif' },
+    { value: 'poppins', label: 'Poppins', category: 'Sans Serif' },
+    { value: 'ubuntu', label: 'Ubuntu', category: 'Sans Serif' },
+    { value: 'open-sans', label: 'Open Sans', category: 'Sans Serif' },
+    { value: 'fira-code', label: 'Fira Code', category: 'Monospace' },
+    { value: 'jetbrains-mono', label: 'JetBrains Mono', category: 'Monospace' },
+    { value: 'source-code-pro', label: 'Source Code Pro', category: 'Monospace' }
   ];
 
   // Apply settings to DOM when they change
@@ -46,9 +36,12 @@ export function AppearanceSettings() {
       'system': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       'inter': '"Inter", sans-serif',
       'roboto': '"Roboto", sans-serif',
+      'poppins': '"Poppins", sans-serif',
+      'ubuntu': '"Ubuntu", sans-serif',
       'open-sans': '"Open Sans", sans-serif',
       'source-code-pro': '"Source Code Pro", monospace',
-      'fira-code': '"Fira Code", monospace'
+      'fira-code': '"Fira Code", monospace',
+      'jetbrains-mono': '"JetBrains Mono", monospace'
     };
     
     if (fontFamilyMap[settings.fontFamily]) {
@@ -68,40 +61,7 @@ export function AppearanceSettings() {
     } else {
       root.classList.remove('no-animations');
     }
-
-    // Apply accent color
-    root.setAttribute('data-accent-color', settings.accentColor);
   }, [settings]);
-
-  const handleExportSettings = () => {
-    const settingsJson = exportSettings();
-    const blob = new Blob([settingsJson], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'appearance-settings.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleImportSettings = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const text = await file.text();
-        const success = await importSettings(text);
-        if (success) {
-          alert('Settings imported successfully!');
-        } else {
-          alert('Failed to import settings. Please check the file format.');
-        }
-      }
-    };
-    input.click();
-  };
 
   return (
     <div className="space-y-6">
@@ -114,35 +74,6 @@ export function AppearanceSettings() {
           </p>
         </div>
         <ThemeSelector size="default" />
-      </div>
-
-      <Separator />
-
-      {/* Accent Color */}
-      <div className="space-y-4">
-        <div>
-          <Label className="text-base font-medium">Accent Color</Label>
-          <p className="text-sm text-muted-foreground mt-1">
-            Choose your preferred accent color for highlights and buttons
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-4 gap-3">
-          {accentColors.map((color) => (
-            <div
-              key={color.value}
-              className={`flex items-center space-x-2 p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
-                settings.accentColor === color.value 
-                  ? 'border-primary bg-primary/5' 
-                  : 'border-border hover:border-primary/50'
-              }`}
-              onClick={() => updateSetting('accentColor', color.value)}
-            >
-              <div className={`w-4 h-4 rounded-full ${color.color}`} />
-              <span className="text-sm font-medium">{color.label}</span>
-            </div>
-          ))}
-        </div>
       </div>
 
       <Separator />
@@ -160,21 +91,43 @@ export function AppearanceSettings() {
           {/* Font Family */}
           <div className="space-y-3">
             <Label>Font Family</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {fontFamilies.map((font) => (
-                <div
-                  key={font.value}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-sm ${
-                    settings.fontFamily === font.value 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                  onClick={() => updateSetting('fontFamily', font.value)}
-                >
-                  <span className="text-sm font-medium">{font.label}</span>
+            
+            {/* Group fonts by category */}
+            {['System', 'Sans Serif', 'Monospace'].map((category) => (
+              <div key={category} className="space-y-2">
+                <h4 className="text-sm font-medium text-muted-foreground">{category}</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {fontFamilies
+                    .filter(font => font.category === category)
+                    .map((font) => (
+                      <div
+                        key={font.value}
+                        className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-sm ${
+                          settings.fontFamily === font.value 
+                            ? 'border-primary bg-primary/5 ring-1 ring-primary/20' 
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        onClick={() => updateSetting('fontFamily', font.value)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">{font.label}</span>
+                          {settings.fontFamily === font.value && (
+                            <div className="w-2 h-2 bg-primary rounded-full" />
+                          )}
+                        </div>
+                        <div 
+                          className="text-xs text-muted-foreground mt-1"
+                          style={{ 
+                            fontFamily: font.value === 'system' ? 'system-ui' : font.value 
+                          }}
+                        >
+                          The quick brown fox jumps
+                        </div>
+                      </div>
+                    ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
 
           {/* Font Size */}
@@ -238,43 +191,6 @@ export function AppearanceSettings() {
               onCheckedChange={(checked) => updateSetting('animationsEnabled', checked)}
             />
           </div>
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Settings Management */}
-      <div className="space-y-4">
-        <div>
-          <Label className="text-base font-medium">Settings Management</Label>
-          <p className="text-sm text-muted-foreground mt-1">
-            Export, import, or reset your appearance settings
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          <Button variant="outline" onClick={handleExportSettings} className="gap-2">
-            <Download className="h-4 w-4" />
-            Export Settings
-          </Button>
-          
-          <Button variant="outline" onClick={handleImportSettings} className="gap-2">
-            <Upload className="h-4 w-4" />
-            Import Settings
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              if (confirm('Are you sure you want to reset all appearance settings to default?')) {
-                resetSettings();
-              }
-            }}
-            className="gap-2 text-red-600 hover:text-red-700"
-          >
-            <RotateCcw className="h-4 w-4" />
-            Reset to Default
-          </Button>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,12 @@ import {
   Plus,
   Cpu,
   Loader2,
-  Trash2
+  Trash2,
+  Edit3,
+  MoreHorizontal,
+  Archive,
+  Star,
+  Clock
 } from "lucide-react";
 
 interface Chat {
@@ -29,27 +34,43 @@ interface SidebarProps {
   setIsMobileOpen: (open: boolean) => void;
   onChatSelect?: (chatId: string | null) => void;
   onCollapseChange?: (collapsed: boolean) => void;
+  autoHide?: boolean;
 }
 
-export default function Sidebar({ 
+export default forwardRef(function Sidebar({ 
   isMobileOpen, 
   setIsMobileOpen, 
   onChatSelect,
-  onCollapseChange
-}: SidebarProps) {
+  onCollapseChange,
+  autoHide = false
+}: SidebarProps, ref) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Load chats from server API
+  // Load chats when component mounts
   useEffect(() => {
     fetchChats();
   }, []);
+
+  // Sync selectedChatId with current URL
+  useEffect(() => {
+    const match = pathname.match(/^\/chat\/(.+)$/);
+    const currentChatId = match ? match[1] : null;
+    setSelectedChatId(currentChatId);
+  }, [pathname]);
+
+  // Expose refreshChats method via ref
+  useImperativeHandle(ref, () => ({
+    refreshChats: () => {
+      fetchChats();
+    }
+  }));
 
   // Load saved sidebar state from localStorage
   useEffect(() => {
@@ -64,17 +85,21 @@ export default function Sidebar({
   }, [onCollapseChange]);
 
   const fetchChats = async () => {
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
     try {
       const response = await fetch('/api/chats');
       if (response.ok) {
         const data = await response.json();
-        // Sort chats by updatedAt date (most recent first)
-        data.sort((a: Chat, b: Chat) => 
+        // Ensure all chats have a messages array and sort by updatedAt date (most recent first)
+        const safeChats = data.map((chat: any) => ({
+          ...chat,
+          messages: chat.messages || []
+        }));
+        safeChats.sort((a: Chat, b: Chat) => 
           new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
         );
-        setChats(data);
+        setChats(safeChats);
       } else {
         console.error('Error fetching chats:', await response.text());
         setError('Failed to load chats');
@@ -82,8 +107,9 @@ export default function Sidebar({
     } catch (error) {
       console.error('Error fetching chats:', error);
       setError('Network error while loading chats');
+    setChats([]);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -107,6 +133,20 @@ export default function Sidebar({
 
   const createNewChat = async () => {
     setError(null);
+    
+    // Check if there's already an empty chat (no messages)
+    const existingEmptyChat = chats.find(chat => chat.messages.length === 0);
+    if (existingEmptyChat) {
+      // Navigate to the existing empty chat instead of creating a new one
+      router.push(`/chat/${existingEmptyChat.id}`);
+      
+      // Expand sidebar if it's collapsed
+      if (collapsed) {
+        toggleSidebar();
+      }
+      return;
+    }
+    
     const newChatId = Date.now().toString();
     const newChat = {
       id: newChatId,
@@ -129,8 +169,8 @@ export default function Sidebar({
         // Add to local state
         setChats([newChat, ...chats]);
         
-        // Select the new chat
-        handleChatSelect(newChatId);
+        // Navigate to the new chat
+        router.push(`/chat/${newChatId}`);
         
         // Expand sidebar if it's collapsed
         if (collapsed) {
@@ -147,12 +187,16 @@ export default function Sidebar({
   };
 
   const handleChatSelect = (chatId: string) => {
-    setSelectedChatId(chatId);
-    if (onChatSelect) {
-      onChatSelect(chatId);
-    }
+    // Navigate to the chat URL
+    router.push(`/chat/${chatId}`);
+    
+    // Auto-hide sidebar on mobile and small screens when selecting a chat
     if (isMobileOpen) {
       setIsMobileOpen(false);
+    }
+    // Auto-collapse sidebar on message send if autoHide is enabled (ChatGPT style)
+    if (autoHide && !collapsed && window.innerWidth < 1200) {
+      toggleSidebar();
     }
   };
 
@@ -171,12 +215,9 @@ export default function Sidebar({
           const updatedChats = chats.filter(chat => chat.id !== chatId);
           setChats(updatedChats);
           
-          // If the deleted chat was selected, clear selection
+          // If the deleted chat was selected, navigate to welcome screen
           if (selectedChatId === chatId) {
-            setSelectedChatId(null);
-            if (onChatSelect) {
-              onChatSelect(null);
-            }
+            router.push('/chat');
           }
         } else {
           console.error('Error deleting chat:', await response.text());
@@ -221,73 +262,76 @@ export default function Sidebar({
         onClick={toggleSidebar}
         disabled={isAnimating}
         className={cn(
-          "fixed left-0 top-1/2 -translate-y-1/2 z-30 bg-background/60 backdrop-blur-sm border-r border-y shadow-md",
-          "rounded-none rounded-r-lg h-14 w-6",
+          "fixed left-0 top-1/2 -translate-y-1/2 z-40 bg-background/80 backdrop-blur-sm border-r border-y shadow-lg",
+          "rounded-none rounded-r-lg h-12 w-8",
           "transition-all duration-300 ease-in-out",
-          "hover:bg-primary/10 hover:shadow-lg",
+          "hover:bg-primary/20 hover:shadow-xl hover:w-10",
           "md:flex hidden items-center justify-center",
+          "border-border/50 hover:border-primary/30",
           collapsed ? "translate-x-16" : "translate-x-64",
         )}
       >
         {collapsed ? 
-          <ChevronRight className={cn("h-4 w-4", isAnimating && "animate-pulse")} /> : 
-          <ChevronLeft className={cn("h-4 w-4", isAnimating && "animate-pulse")} />
+          <ChevronRight className={cn("h-4 w-4 text-foreground", isAnimating && "animate-pulse")} /> : 
+          <ChevronLeft className={cn("h-4 w-4 text-foreground", isAnimating && "animate-pulse")} />
         }
       </Button>
 
       {/* Sidebar container */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 transform border-r bg-background transition-all",
+          "fixed inset-y-0 left-0 z-50 transform border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all",
           collapsed ? "duration-500 ease-in-out" : "duration-400 ease-out",
           isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
-          collapsed ? "w-16" : "w-64",
+          collapsed ? "w-16" : "w-72",
         )}
-        style={{ boxShadow: "0 0 15px rgba(0, 0, 0, 0.05)" }}
+        style={{ 
+          boxShadow: "0 0 30px rgba(0, 0, 0, 0.08)",
+          borderRight: "1px solid hsl(var(--border))"
+        }}
       >
-        {/* Logo and header - simplified */}
+        {/* Clean header with just the icon */}
         <div className={cn(
-          "flex h-16 items-center border-b px-4 relative",
+          "flex h-16 items-center border-b px-4 relative bg-gradient-to-r from-primary/5 to-primary/10",
           "justify-center",
           "transition-all duration-300",
         )}>
-          <div className={cn(
-            "flex items-center overflow-hidden",
-            "justify-center w-full",
-          )}>
+          <div className="relative">
             <Cpu className={cn(
-              "h-6 w-6 flex-shrink-0 text-primary",
+              "h-7 w-7 flex-shrink-0 text-primary",
               collapsed ? "scale-110 transition-transform duration-300" : "",
             )} />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
           </div>
         </div>
 
-        {/* New chat button */}
+        {/* New chat button - enhanced */}
         <div className={cn(
-          "p-4",
+          "p-4 bg-gradient-to-b from-background to-muted/20",
           "transition-all duration-300",
         )}>
           <Button 
             className={cn(
-              "w-full group", 
-              collapsed ? "px-2 justify-center" : "justify-start gap-2",
+              "w-full group bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary text-primary-foreground", 
+              collapsed ? "px-2 justify-center" : "justify-start gap-3",
               "transition-all duration-300 ease-in-out",
-              "hover:shadow-md hover:bg-primary/10",
+              "hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]",
+              "border border-primary/20 backdrop-blur-sm",
             )}
             onClick={createNewChat}
-            disabled={isLoading}
+            disabled={loading}
           >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+            {loading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <Plus className={cn(
-                "h-4 w-4",
+                "h-5 w-5",
                 "transition-all duration-300 group-hover:rotate-90",
               )} />
             )}
             {!collapsed && (
               <span className={cn(
-                "transition-all duration-300",
+                "font-medium transition-all duration-300",
               )}>
                 New Chat
               </span>
@@ -295,30 +339,43 @@ export default function Sidebar({
           </Button>
         </div>
 
-        {/* Chat list */}
-        <nav className="flex-1 overflow-y-auto p-2">
+        {/* Chat list - enhanced */}
+        <nav className="flex-1 overflow-y-auto p-3 space-y-2 pb-20">
           {error && !collapsed && (
-            <div className="bg-destructive/15 text-destructive p-2 rounded-md mb-4 text-xs">
+            <div className="bg-destructive/15 text-destructive p-3 rounded-lg mb-4 text-sm border border-destructive/20">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-2 h-2 bg-destructive rounded-full" />
+                <span className="font-medium">Connection Error</span>
+              </div>
               {error}
               <Button 
                 variant="link" 
                 size="sm" 
                 onClick={fetchChats} 
-                className="p-0 h-auto text-xs ml-2"
+                className="p-0 h-auto text-sm ml-0 mt-2 text-destructive hover:text-destructive/80"
               >
-                Retry
+                Try Again
               </Button>
             </div>
           )}
           
-          <div className={cn("mb-4", collapsed ? "hidden" : "block")}>
-            <h2 className="px-2 text-xs font-semibold text-muted-foreground">Chats</h2>
+          <div className={cn("mb-6", collapsed ? "hidden" : "block")}>
+            <div className="flex items-center justify-between px-3 mb-3">
+              <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                Recent Chats
+              </h2>
+              <Star className="h-4 w-4 text-muted-foreground/50" />
+            </div>
           </div>
           
           <div className="space-y-1">
-            {isLoading && !chats.length ? (
-              <div className="flex justify-center p-4">
-                <Loader2 className="h-5 w-5 animate-spin" />
+            {loading && !chats.length ? (
+              <div className="flex justify-center p-8">
+                <div className="flex flex-col items-center gap-3">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  {!collapsed && <span className="text-sm text-muted-foreground">Loading chats...</span>}
+                </div>
               </div>
             ) : (
               <>
@@ -327,81 +384,118 @@ export default function Sidebar({
                     key={chat.id} 
                     className={cn(
                       "relative group",
-                      collapsed ? "px-2" : "",
+                      collapsed ? "px-1" : "px-1",
                       "transition-all duration-300 ease-in-out",
                     )}
                     style={{ 
                       animationDelay: `${index * 50}ms`,
-                      animation: !isAnimating ? `fadeIn 300ms ease forwards` : 'none' 
+                      animation: !isAnimating ? `fadeIn 400ms ease forwards` : 'none' 
                     }}
                   >
                     <Button
                       variant="ghost"
                       className={cn(
-                        "w-full text-left text-sm",
-                        collapsed ? "px-2 justify-center" : "justify-start",
-                        selectedChatId === chat.id ? "bg-secondary text-secondary-foreground" : "",
-                        "transition-all duration-200 ease-in-out",
-                        selectedChatId === chat.id ? "hover:bg-secondary" : "hover:bg-secondary/40",
+                        "w-full text-left text-sm relative overflow-hidden",
+                        collapsed ? "px-3 justify-center h-12" : "justify-start px-3 py-3 h-auto",
+                        selectedChatId === chat.id 
+                          ? "bg-gradient-to-r from-primary/15 to-primary/5 text-foreground border border-primary/20 shadow-sm" 
+                          : "hover:bg-muted/60",
+                        "transition-all duration-200 ease-in-out rounded-lg",
+                        "group-hover:shadow-md",
                       )}
                       onClick={() => handleChatSelect(chat.id)}
                     >
                       <MessageSquare className={cn(
-                        "h-4 w-4",
-                        collapsed ? "" : "mr-2 shrink-0",
-                        selectedChatId === chat.id ? "text-primary" : "",
+                        "h-4 w-4 flex-shrink-0",
+                        collapsed ? "" : "mr-3",
+                        selectedChatId === chat.id ? "text-primary" : "text-muted-foreground",
                         "transition-all duration-300",
                       )} />
                       
-                      <div className={cn(
-                        "flex-1 truncate",
-                        collapsed ? "hidden" : "block",
-                        "transition-all duration-300",
-                      )}>
-                        <div className="truncate">{chat.title}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {new Date(chat.updatedAt).toLocaleDateString()}
+                      {!collapsed && (
+                        <div className="flex-1 min-w-0">
+                          <div className="truncate font-medium text-sm mb-1">
+                            {chat.title}
+                          </div>
+                          <div className="text-xs text-muted-foreground flex items-center gap-1">
+                            <span>{new Date(chat.updatedAt).toLocaleDateString()}</span>
+                            <span>•</span>
+                            <span>{chat.messages?.length || 0} messages</span>
+                          </div>
                         </div>
-                      </div>
+                      )}
+                      
+                      {selectedChatId === chat.id && (
+                        <div className="absolute inset-y-0 left-0 w-1 bg-primary rounded-r-full" />
+                      )}
                     </Button>
                     
                     {!collapsed && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={cn(
-                          "absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 h-7 w-7",
-                          "transition-all duration-200 ease-in-out",
-                          "hover:bg-destructive hover:text-destructive-foreground",
-                        )}
-                        onClick={(e) => handleDeleteChat(chat.id, e)}
-                        title="Delete chat"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 hover:bg-muted"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Handle rename (you can implement this)
+                          }}
+                          title="Rename chat"
+                        >
+                          <Edit3 className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={(e) => handleDeleteChat(chat.id, e)}
+                          title="Delete chat"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     )}
                     
                     {collapsed && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={cn(
-                          "absolute -right-9 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 h-7 w-7 bg-background",
-                          "transition-all duration-200 ease-in-out",
-                          "hover:bg-destructive hover:text-destructive-foreground",
-                        )}
-                        onClick={(e) => handleDeleteChat(chat.id, e)}
-                        title="Delete chat"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      <div className="absolute -right-10 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-background border rounded-lg shadow-lg transition-all duration-200 flex">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 hover:bg-muted"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Handle rename
+                          }}
+                          title="Rename chat"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={(e) => handleDeleteChat(chat.id, e)}
+                          title="Delete chat"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     )}
                   </div>
                 ))}
                 
-                {!isLoading && !chats.length && (
-                  <div className={cn("text-center text-muted-foreground text-sm p-4", collapsed && "hidden")}>
-                    No chats yet. Create a new chat to get started.
+                {!loading && !chats.length && (
+                  <div className={cn(
+                    "text-center text-muted-foreground text-sm p-8 space-y-3", 
+                    collapsed && "hidden"
+                  )}>
+                    <div className="w-16 h-16 mx-auto bg-muted/30 rounded-full flex items-center justify-center">
+                      <MessageSquare className="h-8 w-8 text-muted-foreground/50" />
+                    </div>
+                    <div>
+                      <p className="font-medium mb-1">No conversations yet</p>
+                      <p className="text-xs">Start a new chat to begin your AI conversation</p>
+                    </div>
                   </div>
                 )}
               </>
@@ -409,35 +503,36 @@ export default function Sidebar({
           </div>
         </nav>
 
-        {/* Footer with settings */}
-        <div className="border-t p-4 fixed bottom-0 left-0 bg-background w-full">
+        {/* Footer with settings - enhanced and fixed to bottom */}
+        <div className={cn(
+          "absolute bottom-0 left-0 right-0 border-t bg-gradient-to-t from-muted/30 to-background/95 backdrop-blur-sm p-4",
+          collapsed ? "w-16" : "w-72"
+        )}>
           <div className={cn(
             "flex gap-2",
             collapsed ? "flex-col items-center" : "items-center justify-center"
           )}>
-            <Link href="/settings">
+            <Link href="/settings" className="w-full">
               <Button 
                 variant="ghost" 
                 size={collapsed ? "icon" : "default"}
                 className={cn(
-                  collapsed ? "w-full flex justify-center" : "gap-2 group"
+                  "w-full transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]",
+                  collapsed 
+                    ? "h-12 flex justify-center hover:bg-primary/10" 
+                    : "gap-3 group hover:bg-gradient-to-r hover:from-primary/5 hover:to-primary/10 border border-transparent hover:border-primary/20 rounded-lg"
                 )}
               >
                 <Settings className={cn(
-                  "h-4 w-4 transition-all duration-300",
+                  "h-5 w-5 transition-all duration-300",
                   !collapsed && "group-hover:rotate-45"
                 )} />
-                {!collapsed && <span>Settings</span>}
+                {!collapsed && <span className="font-medium">Settings</span>}
               </Button>
             </Link>
           </div>
           
-          {!collapsed && (
-            <div className="text-xs text-muted-foreground mt-4">
-              <p>© {new Date().getFullYear()} Ollama AI</p>
-              <p className="mt-1">v1.0.0</p>
-            </div>
-          )}
+          {/* Footer removed - clean design */}
         </div>
       </aside>
 
@@ -450,4 +545,4 @@ export default function Sidebar({
       `}</style>
     </>
   );
-}
+});

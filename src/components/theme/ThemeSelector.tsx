@@ -1,28 +1,19 @@
 "use client"
 
 import { useTheme } from "next-themes"
+import { useAppearanceSettings } from "@/services/AppearanceSettingsService"
 import { Button } from "@/components/ui/button"
 import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu"
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { 
-  Sun, 
   Moon, 
-  Laptop, 
   Palette,
-  CircleDot,
-  Sparkles,
-  Zap,
-  Flame,
-  Cloud,
-  Snowflake,
-  Waves,
-  Leaf,
-  Gem
+  Check
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import React from "react"
@@ -34,85 +25,50 @@ interface ThemeSelectorProps {
   collapsed?: boolean
 }
 
-const themes = [
-  // Basic themes
-  {
-    id: "light",
-    name: "Light",
-    icon: Sun,
-    category: "basic"
-  },
+const darkThemes = [
   {
     id: "dark",
-    name: "Dark",
-    icon: Moon,
-    category: "basic"
+    name: "Midnight",
+    description: "Pure black with gray accents",
+    colors: {
+      bg: "#000000",
+      surface: "#1a1a1a", 
+      accent: "#6b7280",
+      text: "#ffffff"
+    }
   },
   {
-    id: "system",
-    name: "System",
-    icon: Laptop,
-    category: "basic"
-  },
-  
-  // Color themes
-  {
-    id: "blue",
-    name: "Ocean Blue",
-    icon: Waves,
-    color: "text-blue-500",
-    category: "color"
+    id: "dark-slate",
+    name: "Slate Dark",
+    description: "Dark slate with blue accents", 
+    colors: {
+      bg: "#0f172a",
+      surface: "#1e293b",
+      accent: "#3b82f6", 
+      text: "#f1f5f9"
+    }
   },
   {
-    id: "green",
-    name: "Forest Green",
-    icon: Leaf,
-    color: "text-green-500",
-    category: "color"
+    id: "dark-zinc",
+    name: "Zinc Dark",
+    description: "Dark zinc with neutral accents",
+    colors: {
+      bg: "#09090b",
+      surface: "#18181b",
+      accent: "#a1a1aa",
+      text: "#fafafa"
+    }
   },
   {
-    id: "purple",
-    name: "Royal Purple",
-    icon: Gem,
-    color: "text-purple-500",
-    category: "color"
-  },
-  {
-    id: "rose",
-    name: "Rose Pink",
-    icon: Flame,
-    color: "text-rose-500",
-    category: "color"
-  },
-  {
-    id: "orange",
-    name: "Sunset Orange",
-    icon: Flame,
-    color: "text-orange-500",
-    category: "color"
-  },
-  
-  // Special themes
-  {
-    id: "cyberpunk",
-    name: "Cyberpunk",
-    icon: Zap,
-    color: "text-fuchsia-500",
-    category: "special"
-  },
-  {
-    id: "nord",
-    name: "Nord",
-    icon: Snowflake,
-    color: "text-sky-400",
-    category: "special"
-  },
-  {
-    id: "dracula",
-    name: "Dracula",
-    icon: Sparkles,
-    color: "text-purple-400",
-    category: "special"
+    id: "dark-gray",
+    name: "Charcoal",
+    description: "Charcoal black with warm grays",
+    colors: {
+      bg: "#111111",
+      surface: "#1f1f1f",
+      accent: "#a3a3a3",
+      text: "#f5f5f5"
+    }
   }
 ]
 
@@ -122,177 +78,132 @@ export function ThemeSelector({
   className,
   collapsed = false
 }: ThemeSelectorProps) {
-  const { theme, setTheme, resolvedTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
+  const { updateTheme } = useAppearanceSettings()
   const [mounted, setMounted] = React.useState(false)
+  const [open, setOpen] = React.useState(false)
   
   // After mounting, we have access to the theme
   React.useEffect(() => {
     setMounted(true)
     
-    // Apply theme-specific body classes for special themes
-    if (document && document.body) {
-      // First remove any existing theme classes
-      document.body.classList.remove('theme-cyberpunk', 'theme-nord', 'theme-dracula')
-      
-      // Add the current theme class if it's a special theme
-      if (theme === 'cyberpunk') {
-        document.body.classList.add('theme-cyberpunk')
-      } else if (theme === 'nord') {
-        document.body.classList.add('theme-nord')
-      } else if (theme === 'dracula') {
-        document.body.classList.add('theme-dracula')
-      }
+    // Set dark theme as default if no theme is selected
+    if (!theme || theme === 'system' || theme === 'light') {
+      setTheme('dark')
     }
-  }, [theme])
+  }, [theme, setTheme])
   
-  // Use a default icon for server-side rendering
-  // and before client-side hydration is complete
+  // Get current theme info
+  const currentTheme = darkThemes.find(t => t.id === theme) || darkThemes[0]
+  
   if (!mounted) {
     return (
-      <Button 
-        variant={variant} 
-        size={size} 
-        className={cn(
-          "gap-2",
-          className
-        )}
-      >
-        <Palette className="h-4 w-4" />
-        {!collapsed && <span>Theme</span>}
+      <Button variant={variant} size={size} className={className} disabled>
+        <Moon className="h-4 w-4" />
+        {!collapsed && <span className="ml-2">Theme</span>}
       </Button>
     )
   }
-  
-  // Find the current theme object
-  const currentTheme = themes.find(t => t.id === theme) || themes.find(t => t.id === resolvedTheme) || themes[0]
-  const ThemeIcon = currentTheme.icon
+
+  const handleThemeSelect = async (themeId: string) => {
+    setTheme(themeId)
+    await updateTheme(themeId as any) // Save to JSON file
+    setOpen(false)
+  }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button 
-          variant={variant} 
-          size={size} 
-          className={cn(
-            "gap-2 relative overflow-hidden",
-            className,
-            currentTheme.id === "cyberpunk" && "border border-fuchsia-500 bg-gradient-to-r from-fuchsia-600/20 to-cyan-600/20",
-            currentTheme.id === "dracula" && "border border-purple-500 bg-gradient-to-r from-purple-600/20 to-pink-600/20",
-            currentTheme.id === "nord" && "border border-sky-500 bg-gradient-to-r from-sky-600/20 to-indigo-600/20"
-          )}
-        >
-          <ThemeIcon className={cn(
-            "h-4 w-4 relative z-10", 
-            currentTheme.color,
-            currentTheme.id === "cyberpunk" && "animate-pulse"
-          )} />
-          {!collapsed && <span className="ml-2 relative z-10">Theme</span>}
-          
-          {/* Background effects for special themes */}
-          {currentTheme.id === "cyberpunk" && (
-            <div className="absolute inset-0 bg-grid-small-white/10 bg-grid-small-white/5" />
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant={variant} size={size} className={cn("gap-2", className)}>
+          <Moon className="h-4 w-4" />
+          {!collapsed && (
+            <>
+              <span>{currentTheme.name}</span>
+              <Palette className="h-3 w-3 opacity-60" />
+            </>
           )}
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        {/* Basic themes */}
-        <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-          Basic Themes
-        </div>
-        {themes
-          .filter(item => item.category === "basic")
-          .map((item) => {
-            const Icon = item.icon
-            return (
-              <DropdownMenuItem
-                key={item.id}
-                onClick={() => setTheme(item.id)}
-                className={cn(
-                  "flex items-center gap-2 cursor-pointer",
-                  theme === item.id && "bg-accent"
-                )}
-              >
-                <Icon className={cn("h-4 w-4", item.color)} />
-                <span>{item.name}</span>
-                {theme === item.id && (
-                  <CircleDot className="h-3 w-3 ml-auto" />
-                )}
-              </DropdownMenuItem>
-            )
-          })}
-          
-        <DropdownMenuSeparator />
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Palette className="h-5 w-5" />
+            Choose Theme
+          </DialogTitle>
+        </DialogHeader>
         
-        {/* Color themes */}
-        <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-          Color Themes
+        <div className="grid grid-cols-1 gap-3 mt-4">
+          {darkThemes.map((themeOption) => (
+            <div
+              key={themeOption.id}
+              onClick={() => handleThemeSelect(themeOption.id)}
+              className={cn(
+                "flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all duration-200 border-2",
+                "hover:shadow-md",
+                theme === themeOption.id 
+                  ? "border-primary bg-primary/5 shadow-sm" 
+                  : "border-border hover:border-primary/50 hover:bg-muted/30"
+              )}
+            >
+              {/* Theme Preview */}
+              <div className="flex-shrink-0">
+                <div 
+                  className="w-16 h-10 rounded-md border overflow-hidden relative"
+                  style={{ backgroundColor: themeOption.colors.bg }}
+                >
+                  <div 
+                    className="absolute top-0 left-0 w-full h-3"
+                    style={{ backgroundColor: themeOption.colors.surface }}
+                  />
+                  <div 
+                    className="absolute bottom-0 left-0 w-2/3 h-2"
+                    style={{ backgroundColor: themeOption.colors.accent }}
+                  />
+                  <div 
+                    className="absolute top-3 right-1 w-1 h-4 rounded-full"
+                    style={{ backgroundColor: themeOption.colors.text }}
+                  />
+                </div>
+              </div>
+              
+              {/* Theme Info */}
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="font-semibold text-sm">{themeOption.name}</h3>
+                  {theme === themeOption.id && (
+                    <Check className="h-4 w-4 text-primary" />
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">{themeOption.description}</p>
+                
+                {/* Color Palette */}
+                <div className="flex items-center gap-1 mt-2">
+                  <div 
+                    className="w-3 h-3 rounded-full border border-border"
+                    style={{ backgroundColor: themeOption.colors.bg }}
+                    title="Background"
+                  />
+                  <div 
+                    className="w-3 h-3 rounded-full border border-border"
+                    style={{ backgroundColor: themeOption.colors.surface }}
+                    title="Surface"
+                  />
+                  <div 
+                    className="w-3 h-3 rounded-full border border-border"
+                    style={{ backgroundColor: themeOption.colors.accent }}
+                    title="Accent"
+                  />
+                  <div 
+                    className="w-3 h-3 rounded-full border border-border"
+                    style={{ backgroundColor: themeOption.colors.text }}
+                    title="Text"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-        {themes
-          .filter(item => item.category === "color")
-          .map((item) => {
-            const Icon = item.icon
-            return (
-              <DropdownMenuItem
-                key={item.id}
-                onClick={() => setTheme(item.id)}
-                className={cn(
-                  "flex items-center gap-2 cursor-pointer",
-                  theme === item.id && "bg-accent"
-                )}
-              >
-                <Icon className={cn("h-4 w-4", item.color)} />
-                <span>{item.name}</span>
-                {theme === item.id && (
-                  <CircleDot className="h-3 w-3 ml-auto" />
-                )}
-              </DropdownMenuItem>
-            )
-          })}
-          
-        <DropdownMenuSeparator />
-        
-        {/* Special themes */}
-        <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-          Special Themes
-        </div>
-        {themes
-          .filter(item => item.category === "special")
-          .map((item) => {
-            const Icon = item.icon
-            return (
-              <DropdownMenuItem
-                key={item.id}
-                onClick={() => {
-                  console.log('Setting special theme to:', item.id)
-                  // Apply theme directly to HTML element
-                  if (typeof document !== 'undefined') {
-                    document.documentElement.setAttribute('data-theme', item.id)
-                    // Also set in localStorage for persistence
-                    localStorage.setItem('theme', item.id)
-                  }
-                  setTheme(item.id)
-                }}
-                className={cn(
-                  "flex items-center gap-2 cursor-pointer",
-                  theme === item.id && "bg-accent",
-                  item.id === "cyberpunk" && theme !== item.id && "bg-gradient-to-r from-fuchsia-600/10 to-cyan-600/10",
-                  item.id === "dracula" && theme !== item.id && "bg-gradient-to-r from-purple-600/10 to-pink-600/10",
-                  item.id === "nord" && theme !== item.id && "bg-gradient-to-r from-sky-600/10 to-indigo-600/10"
-                )}
-              >
-                <Icon className={cn(
-                  "h-4 w-4", 
-                  item.color,
-                  item.id === "cyberpunk" && "animate-pulse"
-                )} />
-                <span>{item.name}</span>
-                {theme === item.id && (
-                  <CircleDot className="h-3 w-3 ml-auto" />
-                )}
-              </DropdownMenuItem>
-            )
-          })}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </DialogContent>
+    </Dialog>
   )
 }

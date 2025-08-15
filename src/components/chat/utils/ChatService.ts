@@ -78,29 +78,40 @@ export class ChatService {
    */
   static async generateResponse(prompt: string, chatHistory: Message[] = []): Promise<string> {
     try {
+      console.log('🤖 Starting AI response generation...');
+      
       // Get app settings and current model from config
       const settings = configService.getSettings();
+      console.log('⚙️ Settings loaded:', settings);
+      
       // Look for the model in the proper location according to AppSettings interface
       const selectedModelId = settings.defaultModel;
+      console.log('🎯 Selected model ID:', selectedModelId);
       
-      if (!selectedModelId) {
-        throw new Error("No model selected. Please select a model in Settings.");
+      if (!selectedModelId || selectedModelId === null) {
+        throw new Error("Please select a model first! Go to Settings → Models to choose a model before starting a chat.");
       }
 
       // Get model parameters if configured
       const modelConfig = configService.getModelConfig(selectedModelId);
+      console.log('📋 Model config:', modelConfig);
+      
       if (!modelConfig) {
         throw new Error(`Model configuration for ${selectedModelId} not found.`);
       }
 
       // Check if Ollama service is running
+      console.log('🔍 Checking Ollama status...');
       const status = await ollamaService.checkOllamaStatus();
+      console.log('📊 Ollama status:', status);
+      
       if (status.status === 'error') {
         throw new Error(`Ollama service error: ${status.message}`);
       }
 
-      // Build context from chat history (last few messages)
-      const relevantHistory = chatHistory.slice(-6); // Take last 6 messages for context
+      // Build context from chat history (last few messages for better context)
+      const contextLimit = 10; // Use last 10 messages for context
+      const relevantHistory = chatHistory.slice(-contextLimit);
       
       // Get default system prompt from settings
       let systemPrompt = '';
@@ -111,24 +122,33 @@ export class ChatService {
         defaultSystemPrompt = settings.defaultSystemPrompt || '';
       }
       
-      // Format messages for context
+      // Format conversation context like ChatGPT
+      let conversationContext = '';
       if (relevantHistory.length > 0) {
-        systemPrompt = relevantHistory.map(msg => 
-          `${msg.role === 'user' ? 'Human' : 'Assistant'}: ${msg.content}`
-        ).join('\n\n');
-        // Prepend default system prompt if it exists
-        if (defaultSystemPrompt) {
-          systemPrompt = defaultSystemPrompt + '\n\n' + systemPrompt;
-        }
-      } else if (defaultSystemPrompt) {
-        // Use default system prompt for new conversations
-        systemPrompt = defaultSystemPrompt;
+        conversationContext = relevantHistory.map(msg => {
+          const role = msg.role === 'user' ? 'User' : 'Assistant';
+          return `${role}: ${msg.content}`;
+        }).join('\n\n');
       }
+      
+      // Combine system prompt with conversation context
+      if (defaultSystemPrompt && conversationContext) {
+        systemPrompt = `${defaultSystemPrompt}\n\nPrevious conversation:\n${conversationContext}`;
+      } else if (defaultSystemPrompt) {
+        systemPrompt = defaultSystemPrompt;
+      } else if (conversationContext) {
+        systemPrompt = `You are a helpful AI assistant. Here's our conversation so far:\n${conversationContext}`;
+      }
+      
+      // Add current context instruction
+      const contextualPrompt = relevantHistory.length > 0 
+        ? `Continue this conversation naturally, referring to previous messages when relevant:\n\n${prompt}`
+        : prompt;
 
       // Prepare generation options
       const options: GenerationOptions = {
         model: selectedModelId,
-        prompt: prompt,
+        prompt: contextualPrompt,
         system: systemPrompt.length > 0 ? systemPrompt : undefined,
         options: {
           ...modelConfig.parameters
@@ -136,16 +156,22 @@ export class ChatService {
         stream: settings.chatSettings.streamResponses
       };
       
+      console.log('🚀 Generation options:', options);
+      
       // Make the API call
+      console.log('📡 Calling Ollama API...');
       const response = await ollamaService.generateCompletion(options);
+      console.log('📬 Response received:', response.status, response.statusText);
       
       if (!response.ok) {
         const errorText = await response.text();
+        console.error('❌ Generation failed:', errorText);
         throw new Error(`Generation failed: ${errorText}`);
       }
       
       // Handle streaming and non-streaming responses differently
       if (settings.chatSettings.streamResponses) {
+        console.log('🌊 Processing streaming response...');
         // For streaming responses, we need to handle the response as a stream of data
         const reader = response.body?.getReader();
         let responseText = '';
@@ -157,6 +183,7 @@ export class ChatService {
               if (done) break;
               
               const chunk = new TextDecoder().decode(value);
+              console.log('📥 Received chunk:', chunk);
               
               // Process each line as a separate JSON object
               const lines = chunk.split('\n').filter(line => line.trim());
@@ -167,30 +194,35 @@ export class ChatService {
                   if (data.response) {
                     responseText += data.response;
                   }
+                  if (data.done) {
+                    console.log('✅ Streaming complete. Final response:', responseText);
+                  }
                 } catch (e) {
-                  console.warn('Error parsing chunk:', e);
+                  console.warn('⚠️ Error parsing chunk:', e);
                 }
               }
             }
             
             return responseText;
           } catch (e) {
-            console.error('Error reading stream:', e);
+            console.error('❌ Error reading stream:', e);
             throw e;
           }
         } else {
           throw new Error('Could not get reader from response');
         }
       } else {
+        console.log('📄 Processing non-streaming response...');
         // For non-streaming responses, parse the response as a single JSON object
         try {
           const result = await response.json();
+          console.log('✅ Non-streaming response:', result);
           return result.response;
         } catch (e: unknown) {
-          console.error('Error parsing JSON response:', e);
+          console.error('❌ Error parsing JSON response:', e);
           // Try to read as text if JSON parsing fails
           const text = await response.text();
-          console.warn('Response as text:', text);
+          console.warn('📝 Response as text:', text);
           throw new Error(`Failed to parse JSON response: ${e instanceof Error ? e.message : String(e)}`);
         }
       }

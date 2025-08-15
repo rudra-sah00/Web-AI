@@ -1,0 +1,87 @@
+/* Import Google Fonts and Fontsource fonts */
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+
+@import '@fontsource/roboto/300.css';
+@import '@fontsource/roboto/400.css';
+@import '@fontsource/roboto/500.css';
+@import '@fontsource/roboto/700.css';
+
+@import '@fontsource/poppins/300.css';
+@import '@fontsource/poppins/400.css';
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/700.css';
+
+@import '@fontsource/ubuntu/300.css';
+@import '@fontsource/ubuntu/400.css';
+@import '@fontsource/ubuntu/500.css';
+@import '@fontsource/ubuntu/700.css';
+
+@import '@fontsource/fira-code/400.css';
+@import '@fontsource/fira-code/500.css';
+@import '@fontsource/fira-code/600.css';
+
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/600.css';
+
+/* Custom font variables */
+:root {
+  --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-inter: 'Inter', var(--font-system);
+  --font-roboto: 'Roboto', var(--font-system);
+  --font-poppins: 'Poppins', var(--font-system);
+  --font-ubuntu: 'Ubuntu', var(--font-system);
+  --font-fira-code: 'Fira Code', 'Courier New', monospace;
+  --font-jetbrains-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --font-source-code-pro: 'Source Code Pro', 'Courier New', monospace;
+  
+  /* Default font settings */
+  --font-family: var(--font-inter);
+  --base-font-size: 14px;
+}
+
+/* Font family classes */
+.font-system { font-family: var(--font-system) !important; }
+.font-inter { font-family: var(--font-inter) !important; }
+.font-roboto { font-family: var(--font-roboto) !important; }
+.font-poppins { font-family: var(--font-poppins) !important; }
+.font-ubuntu { font-family: var(--font-ubuntu) !important; }
+.font-fira-code { font-family: var(--font-fira-code) !important; }
+.font-jetbrains-mono { font-family: var(--font-jetbrains-mono) !important; }
+.font-source-code-pro { font-family: var(--font-source-code-pro) !important; }
+
+/* Apply font family dynamically */
+body {
+  font-family: var(--font-family);
+  font-size: var(--base-font-size);
+}
+
+/* Compact mode styles */
+.compact-mode {
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.25rem;
+}
+
+.compact-mode .p-4 { padding: var(--spacing-md) !important; }
+.compact-mode .p-3 { padding: var(--spacing-sm) !important; }
+.compact-mode .py-3 { padding-top: var(--spacing-sm) !important; padding-bottom: var(--spacing-sm) !important; }
+.compact-mode .px-3 { padding-left: var(--spacing-sm) !important; padding-right: var(--spacing-sm) !important; }
+.compact-mode .gap-4 { gap: var(--spacing-md) !important; }
+.compact-mode .gap-3 { gap: var(--spacing-sm) !important; }
+.compact-mode .space-y-4 > * + * { margin-top: var(--spacing-md) !important; }
+.compact-mode .space-y-3 > * + * { margin-top: var(--spacing-sm) !important; }
+
+/* No animations */
+.no-animations * {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}

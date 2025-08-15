@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Bot, Edit3, Trash2, Copy, Check } from "lucide-react";
+import { Edit3, Trash2, Copy, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Message } from "./types";
+import MessageContent from "./MessageContent";
 
 interface MessageItemProps {
   message: Message;
@@ -18,7 +19,6 @@ export default function MessageItem({ message, onEdit, onDelete }: MessageItemPr
   const [isCopied, setIsCopied] = useState(false);
   const [showTimestamps, setShowTimestamps] = useState(false);
 
-  // Load display settings
   useEffect(() => {
     const displaySettings = localStorage.getItem('chatDisplaySettings');
     if (displaySettings) {
@@ -38,88 +38,132 @@ export default function MessageItem({ message, onEdit, onDelete }: MessageItemPr
     setTimeout(() => setIsCopied(false), 2000);
   };
 
+  const isUser = message.role === "user";
+
   return (
-    <div className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-      <Card className={`max-w-[80%] ${message.role === "user" ? "bg-primary text-primary-foreground" : ""}`}>
-        <CardContent className="p-3 relative group">
-          <div className="flex items-start gap-3">
-            <div className="mt-1 flex-shrink-0">
-              {message.role === "user" ? (
-                <User className="h-5 w-5" />
-              ) : (
-                <Bot className="h-5 w-5" />
-              )}
-            </div>
-            <div className="flex-1">
-              {isEditing ? (
-                <div className="flex flex-col gap-2">
-                  <textarea 
-                    value={editText} 
-                    onChange={(e) => setEditText(e.target.value)}
-                    className="w-full p-2 rounded border min-h-[100px] bg-background text-foreground"
-                  />
-                  <div className="flex justify-end gap-2 transition-opacity duration-300 ease-in-out">
-                    <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>
-                      Cancel
+    <div className={cn(
+      "w-full group py-4 transition-colors duration-200",
+      isUser ? "bg-transparent" : "bg-transparent"
+    )}>
+      <div className="max-w-4xl mx-auto px-4">
+        <div className={cn(
+          "flex gap-4",
+          isUser ? "flex-row-reverse" : "flex-row"
+        )}>
+          {/* Message Content */}
+          <div className="flex-1 min-w-0">
+            {isEditing ? (
+              <div className="space-y-3">
+                <textarea
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  className="w-full p-3 border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground min-h-[100px]"
+                  placeholder="Edit your message..."
+                />
+                <div className={cn(
+                  "flex gap-2",
+                  isUser ? "justify-end" : "justify-start"
+                )}>
+                  <Button size="sm" onClick={handleEditSave} className="h-8 px-3 text-xs">
+                    Save
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => setIsEditing(false)}
+                    className="h-8 px-3 text-xs"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className={cn(
+                "relative flex",
+                isUser ? "justify-end" : "justify-start"
+              )}>
+                {/* User Message: Chat Bubble */}
+                {isUser ? (
+                  <div className={cn(
+                    "px-4 py-3 rounded-2xl shadow-sm bg-primary text-primary-foreground rounded-br-md",
+                    "transition-all duration-300 hover:shadow-md overflow-hidden",
+                    "inline-block max-w-[80%] min-w-fit w-auto"
+                  )}>
+                    <MessageContent 
+                      content={message.content}
+                      className="text-sm leading-relaxed [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 whitespace-pre-wrap"
+                    />
+                    
+                    {showTimestamps && (
+                      <div className="text-xs mt-2 opacity-70 text-primary-foreground/80">
+                        {new Date(message.timestamp).toLocaleTimeString()}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* AI Message: Plain text without box */
+                  <div className="py-1 max-w-[85%]">
+                    <MessageContent 
+                      content={message.content}
+                      className="text-sm leading-relaxed text-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                    />
+                    
+                    {showTimestamps && (
+                      <div className="text-xs mt-2 opacity-70 text-muted-foreground">
+                        {new Date(message.timestamp).toLocaleTimeString()}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Action buttons */}
+                {!isEditing && (
+                  <div className={cn(
+                    "flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-all duration-200",
+                    isUser ? "justify-end" : "justify-start"
+                  )}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0 hover:bg-muted/60 rounded-md text-muted-foreground hover:text-foreground transition-colors"
+                      onClick={copyToClipboard}
+                      title="Copy message"
+                    >
+                      {isCopied ? (
+                        <Check className="h-3 w-3 text-green-400" />
+                      ) : (
+                        <Copy className="h-3 w-3" />
+                      )}
                     </Button>
-                    <Button size="sm" onClick={handleEditSave}>
-                      Save
+                    
+                    {isUser && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 hover:bg-muted/60 rounded-md text-muted-foreground hover:text-foreground transition-colors"
+                        onClick={() => setIsEditing(true)}
+                        title="Edit message"
+                      >
+                        <Edit3 className="h-3 w-3" />
+                      </Button>
+                    )}
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0 hover:bg-red-600/20 text-red-400 hover:text-red-300 rounded-md transition-colors"
+                      onClick={() => onDelete(message.id)}
+                      title="Delete message"
+                    >
+                      <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
-                </div>
-              ) : (
-                <div className="space-y-1">
-                  <div className="whitespace-pre-wrap">{message.content}</div>
-                  {showTimestamps && (
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(message.timestamp).toLocaleString()}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Message actions */}
-          {message.role === "user" && !isEditing && (
-            <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 flex gap-1">
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className="h-7 w-7 transition-all duration-300 ease-in-out hover:bg-destructive/20 hover:text-destructive hover:scale-110" 
-                onClick={() => setIsEditing(true)}
-              >
-                <Edit3 className="h-4 w-4 transition-transform duration-300" />
-              </Button>
-              <Button 
-                size="icon" 
-                variant="ghost"
-                className="h-7 w-7 transition-all duration-300 ease-in-out hover:bg-primary/20 hover:scale-110" 
-                onClick={() => onDelete(message.id)}
-              >
-                <Trash2 className="h-4 w-4 transition-transform duration-300 text-green-500 transition-transform duration-300 animate-in zoom-in-50" />
-              </Button>
-            </div>
-          )}
-
-          {message.role === "assistant" && (
-            <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100">
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className="h-7 w-7"
-                onClick={copyToClipboard}
-              >
-                {isCopied ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Copy className="h-4 w-4" />
                 )}
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

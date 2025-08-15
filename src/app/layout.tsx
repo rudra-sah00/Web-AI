@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { ThemeApplier } from "@/components/theme/ThemeApplier";
+import "@/services/SettingsSyncService"; // Initialize sync service
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,11 +33,12 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="data-theme"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-          themes={["light", "dark", "blue", "green", "purple", "rose", "orange", "cyberpunk", "nord", "dracula"]}
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange={false}
+          themes={["dark", "dark-slate", "dark-zinc", "dark-gray"]}
         >
+          <ThemeApplier />
           {children}
           <Toaster />
         </ThemeProvider>

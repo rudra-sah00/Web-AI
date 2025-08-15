@@ -1,12 +1,14 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import { ModelInstaller } from './components/ModelInstaller';
 import { ModelManager } from './components/ModelManager';
 import { CustomModelCreator } from './components/CustomModelCreator';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Package, Search, Settings, Download, Globe, Wand2 } from 'lucide-react';
+import { Package, Search, Settings, Download, Globe, Wand2, ArrowLeft } from 'lucide-react';
 
 export default function ModelsPage() {
   return (
@@ -15,6 +17,16 @@ export default function ModelsPage() {
         <div className="flex flex-col space-y-8">
           {/* Header */}
           <div className="flex flex-col space-y-4">
+            {/* Back Button */}
+            <div className="flex items-center">
+              <Link href="/settings">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Settings
+                </Button>
+              </Link>
+            </div>
+            
             <div className="flex items-center gap-3">
               <Package className="h-10 w-10 text-primary" />
               <div>

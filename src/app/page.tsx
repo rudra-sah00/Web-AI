@@ -1,41 +1,22 @@
 "use client";
- 
-import { useState, useEffect } from "react";
-import AppLayout from "@/components/AppLayout";
-import ChatModule from "@/components/chat/ChatModule";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect to chat page
+    router.push('/chat');
+  }, [router]);
 
   return (
-    <AppLayout>
-      {({ selectedChatId: chatId, sidebarCollapsed: collapsed }: { selectedChatId: string | null; sidebarCollapsed: boolean }) => {
-        // Use useEffect to handle state updates from props
-        useEffect(() => {
-          if (selectedChatId !== chatId) {
-            setSelectedChatId(chatId);
-          }
-        }, [chatId]);
-
-        useEffect(() => {
-          if (sidebarCollapsed !== collapsed) {
-            setSidebarCollapsed(collapsed);
-          }
-        }, [collapsed]);
-
-        return (
-          <div className="h-full w-full">
-            <ChatModule 
-              sidebarCollapsed={sidebarCollapsed} 
-              selectedChatId={selectedChatId || undefined} 
-              onChatUpdate={(chat) => {
-                // We could handle chat updates if needed
-              }}
-            />
-          </div>
-        );
-      }}
-    </AppLayout>
+    <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <h1 className="text-2xl font-semibold mb-2">Redirecting...</h1>
+        <p className="text-muted-foreground">Taking you to the chat interface</p>
+      </div>
+    </div>
   );
 }

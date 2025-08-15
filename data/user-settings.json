@@ -1,0 +1,21 @@
+{
+  "ollamaEndpoint": "http://localhost:11434",
+  "theme": "system",
+  "fontSize": 16,
+  "fontFamily": "system",
+  "compactMode": false,
+  "animationsEnabled": true,
+  "accentColor": "indigo",
+  "streamResponses": true,
+  "saveHistory": true,
+  "maxHistoryItems": 100,
+  "autoSave": true,
+  "showTimestamps": false,
+  "enableMarkdown": true,
+  "enableCodeHighlighting": true,
+  "defaultSystemPrompt": "",
+  "defaultTemperature": 0.7,
+  "defaultTopP": 0.9,
+  "defaultMaxTokens": 2048,
+  "defaultModel": "llama3.2:3b"
+}

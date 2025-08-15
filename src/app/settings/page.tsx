@@ -9,7 +9,7 @@ import { AppearanceSettings } from './components/AppearanceSettings';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Package, ExternalLink } from 'lucide-react';
+import { Package, ExternalLink, ArrowLeft } from 'lucide-react';
 
 export default function SettingsPage() {
   return (
@@ -18,6 +18,16 @@ export default function SettingsPage() {
         <div className="flex flex-col space-y-8">
           {/* Header */}
           <div className="flex flex-col space-y-4">
+            {/* Back Button */}
+            <div className="flex items-center">
+              <Link href="/">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Chats
+                </Button>
+              </Link>
+            </div>
+            
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-4xl font-bold tracking-tight">Settings</h1>
@@ -26,7 +36,7 @@ export default function SettingsPage() {
                 </p>
               </div>
               <Link href="/models">
-                <Button className="gap-2">
+                <Button variant="secondary" className="gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0">
                   <Package className="h-4 w-4" />
                   Models Library
                   <ExternalLink className="h-4 w-4" />

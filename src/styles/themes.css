@@ -1,0 +1,213 @@
+/* Dark theme variations - all maintaining black/dark backgrounds with gray combinations */
+
+/* Default Dark Theme */
+/* Dark Theme Variants with Strong Specificity */
+
+/* Default Dark Theme (Midnight) */
+:root[data-theme="dark"], 
+html[data-theme="dark"], 
+.dark,
+html.theme-dark {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #1a1a1a;
+  --card-foreground: #ffffff;
+  --popover: #1a1a1a;
+  --popover-foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --secondary: #262626;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #6b7280;
+  --accent: #262626;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #262626;
+  --input: #262626;
+  --ring: #6b7280;
+  --radius: 0.5rem;
+}
+
+/* Dark Slate Theme */
+:root[data-theme="dark-slate"],
+html[data-theme="dark-slate"],
+html.theme-dark-slate {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --card: #1e293b;
+  --card-foreground: #f1f5f9;
+  --popover: #1e293b;
+  --popover-foreground: #f1f5f9;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #334155;
+  --secondary-foreground: #f1f5f9;
+  --muted: #1e293b;
+  --muted-foreground: #64748b;
+  --accent: #334155;
+  --accent-foreground: #f1f5f9;
+  --destructive: #ef4444;
+  --destructive-foreground: #f1f5f9;
+  --border: #334155;
+  --input: #334155;
+  --ring: #3b82f6;
+  --radius: 0.5rem;
+}
+
+/* Dark Zinc Theme */
+:root[data-theme="dark-zinc"],
+html[data-theme="dark-zinc"],
+html.theme-dark-zinc {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #18181b;
+  --card-foreground: #fafafa;
+  --popover: #18181b;
+  --popover-foreground: #fafafa;
+  --primary: #a1a1aa;
+  --primary-foreground: #18181b;
+  --secondary: #27272a;
+  --secondary-foreground: #fafafa;
+  --muted: #18181b;
+  --muted-foreground: #71717a;
+  --accent: #27272a;
+  --accent-foreground: #fafafa;
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #a1a1aa;
+  --radius: 0.5rem;
+}
+
+/* Dark Gray Theme (Charcoal) */
+:root[data-theme="dark-gray"],
+html[data-theme="dark-gray"],
+html.theme-dark-gray {
+  --background: #111111;
+  --foreground: #f5f5f5;
+  --card: #1f1f1f;
+  --card-foreground: #f5f5f5;
+  --popover: #1f1f1f;
+  --popover-foreground: #f5f5f5;
+  --primary: #a3a3a3;
+  --primary-foreground: #1f1f1f;
+  --secondary: #2a2a2a;
+  --secondary-foreground: #f5f5f5;
+  --muted: #1f1f1f;
+  --muted-foreground: #737373;
+  --accent: #2a2a2a;
+  --accent-foreground: #f5f5f5;
+  --destructive: #ef4444;
+  --destructive-foreground: #f5f5f5;
+  --border: #2a2a2a;
+  --input: #2a2a2a;
+  --ring: #a3a3a3;
+  --radius: 0.5rem;
+}
+
+/* Dark Blue Theme */
+[data-theme="dark-blue"] {
+  --background: 222 84% 5%; /* Very dark blue-black */
+  --foreground: 210 40% 98%;
+  --card: 222 84% 7%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222 84% 7%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 213 94% 68%; /* Bright blue */
+  --primary-foreground: 222 84% 5%;
+  --secondary: 215 28% 32%; /* Blue-gray */
+  --secondary-foreground: 210 40% 98%;
+  --muted: 215 28% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 215 28% 17%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 215 28% 22%;
+  --input: 215 28% 17%;
+  --ring: 213 94% 68%;
+}
+
+/* Dark Green Theme */
+[data-theme="dark-green"] {
+  --background: 120 30% 3%; /* Very dark green-black */
+  --foreground: 120 20% 98%;
+  --card: 120 30% 5%;
+  --card-foreground: 120 20% 98%;
+  --popover: 120 30% 5%;
+  --popover-foreground: 120 20% 98%;
+  --primary: 142 76% 64%; /* Bright green */
+  --primary-foreground: 120 30% 3%;
+  --secondary: 120 10% 32%; /* Green-gray */
+  --secondary-foreground: 120 20% 98%;
+  --muted: 120 10% 17%;
+  --muted-foreground: 120 8% 65%;
+  --accent: 120 10% 17%;
+  --accent-foreground: 120 20% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 120 20% 98%;
+  --border: 120 10% 22%;
+  --input: 120 10% 17%;
+  --ring: 142 76% 64%;
+}
+
+/* Dark Purple Theme */
+[data-theme="dark-purple"] {
+  --background: 270 30% 4%; /* Very dark purple-black */
+  --foreground: 270 20% 98%;
+  --card: 270 30% 6%;
+  --card-foreground: 270 20% 98%;
+  --popover: 270 30% 6%;
+  --popover-foreground: 270 20% 98%;
+  --primary: 262 83% 68%; /* Bright purple */
+  --primary-foreground: 270 30% 4%;
+  --secondary: 220 14% 32%; /* Purple-gray */
+  --secondary-foreground: 270 20% 98%;
+  --muted: 220 14% 17%;
+  --muted-foreground: 220 12% 65%;
+  --accent: 220 14% 17%;
+  --accent-foreground: 270 20% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 270 20% 98%;
+  --border: 220 14% 22%;
+  --input: 220 14% 17%;
+  --ring: 262 83% 68%;
+}
+
+/* Enhanced scrollbar styling for all themes */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Dark theme specific enhancements */
+[data-theme^="dark"] {
+  color-scheme: dark;
+}
+
+[data-theme^="dark"] pre {
+  background: hsl(var(--muted)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+[data-theme^="dark"] code {
+  background: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+}
