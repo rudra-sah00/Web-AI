@@ -65,13 +65,13 @@ export default function SettingsPage() {
             </Card>
 
             {/* Model Management */}
-            <Card>
+            <Card id="model-management">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   📦 Model Management
                 </CardTitle>
                 <CardDescription>
-                  Manage your installed models. Click ⚙️ on any model to edit parameters, 📄 for info, 📋 to copy, or 🗑️ to delete.
+                  Manage your installed models, select which one to use, and configure model parameters. Click ⚙️ on any model to edit parameters, 📄 for info, 📋 to copy, or 🗑️ to delete.
                 </CardDescription>
               </CardHeader>
               <CardContent>

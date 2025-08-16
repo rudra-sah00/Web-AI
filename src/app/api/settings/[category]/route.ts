@@ -39,10 +39,10 @@ async function saveSettings(category: string, settings: any): Promise<void> {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { category: string } }
+  { params }: { params: Promise<{ category: string }> }
 ) {
   try {
-    const { category } = params;
+    const { category } = await params;
     
     // Validate category
     const validCategories = ['appearance', 'chat', 'model', 'connection'];
@@ -56,7 +56,8 @@ export async function GET(
     const settings = await loadSettings(category);
     return NextResponse.json(settings);
   } catch (error) {
-    console.error(`Error loading ${params.category} settings:`, error);
+    const resolvedParams = await params;
+    console.error(`Error loading ${resolvedParams.category} settings:`, error);
     return NextResponse.json(
       { error: 'Failed to load settings' },
       { status: 500 }
@@ -66,10 +67,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { category: string } }
+  { params }: { params: Promise<{ category: string }> }
 ) {
   try {
-    const { category } = params;
+    const { category } = await params;
     
     // Validate category
     const validCategories = ['appearance', 'chat', 'model', 'connection'];
@@ -85,7 +86,8 @@ export async function POST(
     
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(`Error saving ${params.category} settings:`, error);
+    const resolvedParams = await params;
+    console.error(`Error saving ${resolvedParams.category} settings:`, error);
     return NextResponse.json(
       { error: 'Failed to save settings' },
       { status: 500 }

@@ -1,6 +1,7 @@
 import { Chat, Message } from "../components/types";
 import ollamaService from '@/services/OllamaService';
 import configService from '@/services/ConfigService';
+import modelSettingsService from '@/services/ModelSettingsService';
 import { GenerationOptions } from '@/services/types';
 
 export class ChatService {
@@ -115,24 +116,38 @@ export class ChatService {
     try {
       console.log('🤖 Starting AI streaming response generation...');
       
-      // Get app settings and current model from config
-      const settings = configService.getSettings();
-      console.log('⚙️ Settings loaded:', settings);
+      // Get model settings from ModelSettingsService
+      const modelSettings = modelSettingsService.getSettings();
+      console.log('🎯 Model settings loaded:', modelSettings);
       
-      // Look for the model in the proper location according to AppSettings interface
-      const selectedModelId = settings.defaultModel;
+      const selectedModelId = modelSettings.defaultModel;
       console.log('🎯 Selected model ID:', selectedModelId);
       
-      if (!selectedModelId || selectedModelId === null) {
-        throw new Error("Please select a model first! Go to Settings → Models to choose a model before starting a chat.");
+      if (!selectedModelId || selectedModelId.trim() === '') {
+        throw new Error("Please select a model first! Go to Settings → Model Selection to choose a model before starting a chat.");
       }
 
       // Get model parameters if configured
       const modelConfig = configService.getModelConfig(selectedModelId);
       console.log('📋 Model config:', modelConfig);
       
+      let modelConfigToUse;
       if (!modelConfig) {
-        throw new Error(`Model configuration for ${selectedModelId} not found.`);
+        // If no specific config found, create a default one
+        modelConfigToUse = {
+          id: selectedModelId,
+          name: selectedModelId,
+          description: "Selected model",
+          parameters: {
+            temperature: modelSettings.defaultTemperature,
+            top_p: modelSettings.defaultTopP,
+            max_tokens: modelSettings.defaultMaxTokens
+          },
+          installed: true
+        };
+        console.log('📋 Using default model config:', modelConfigToUse);
+      } else {
+        modelConfigToUse = modelConfig;
       }
 
       // Check if Ollama service is running
@@ -238,7 +253,7 @@ ${prompt}
         prompt: contextualPrompt,
         system: systemPrompt.length > 0 ? systemPrompt : undefined,
         options: {
-          ...modelConfig.parameters
+          ...modelConfigToUse.parameters
         },
         stream: true // Always stream for this method
       };
@@ -310,25 +325,42 @@ ${prompt}
     try {
       console.log('🤖 Starting AI response generation...');
       
-      // Get app settings and current model from config
-      const settings = configService.getSettings();
-      console.log('⚙️ Settings loaded:', settings);
+      // Get model settings from ModelSettingsService
+      const modelSettings = modelSettingsService.getSettings();
+      console.log('🎯 Model settings loaded:', modelSettings);
       
-      // Look for the model in the proper location according to AppSettings interface
-      const selectedModelId = settings.defaultModel;
+      const selectedModelId = modelSettings.defaultModel;
       console.log('🎯 Selected model ID:', selectedModelId);
       
-      if (!selectedModelId || selectedModelId === null) {
-        throw new Error("Please select a model first! Go to Settings → Models to choose a model before starting a chat.");
+      if (!selectedModelId || selectedModelId.trim() === '') {
+        throw new Error("Please select a model first! Go to Settings → Model Selection to choose a model before starting a chat.");
       }
 
       // Get model parameters if configured
       const modelConfig = configService.getModelConfig(selectedModelId);
       console.log('📋 Model config:', modelConfig);
       
+      let modelConfigToUse;
       if (!modelConfig) {
-        throw new Error(`Model configuration for ${selectedModelId} not found.`);
+        // If no specific config found, create a default one
+        modelConfigToUse = {
+          id: selectedModelId,
+          name: selectedModelId,
+          description: "Selected model",
+          parameters: {
+            temperature: modelSettings.defaultTemperature,
+            top_p: modelSettings.defaultTopP,
+            max_tokens: modelSettings.defaultMaxTokens
+          },
+          installed: true
+        };
+        console.log('📋 Using default model config:', modelConfigToUse);
+      } else {
+        modelConfigToUse = modelConfig;
       }
+
+      // Get chat settings for streaming preference
+      const settings = configService.getSettings();
 
       // Check if Ollama service is running
       console.log('🔍 Checking Ollama status...');
@@ -433,7 +465,7 @@ ${prompt}
         prompt: contextualPrompt,
         system: systemPrompt.length > 0 ? systemPrompt : undefined,
         options: {
-          ...modelConfig.parameters
+          ...modelConfigToUse.parameters
         },
         stream: settings.chatSettings.streamResponses
       };

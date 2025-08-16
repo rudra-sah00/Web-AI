@@ -24,6 +24,7 @@ import {
   Settings
 } from 'lucide-react';
 import ollamaService from '@/services/OllamaService';
+import { useModelSettings } from '@/services/ModelSettingsService';
 import { ModelListResponse } from '@/services/types';
 import { ModelParameterDialog } from '@/components/ModelParameterDialog';
 
@@ -46,6 +47,9 @@ export function ModelManagementSettings() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedModels, setSelectedModels] = useState<Set<string>>(new Set());
   const [copyModelName, setCopyModelName] = useState('');
+  
+  // Model settings hook for current selection
+  const { settings, updateModelParameters } = useModelSettings();
   
   // Model parameter dialog state
   const [selectedModelForParams, setSelectedModelForParams] = useState<string | null>(null);
@@ -120,6 +124,22 @@ export function ModelManagementSettings() {
     }
   };
 
+  const handleModelSelection = async (modelName: string) => {
+    try {
+      console.log(`🎯 Selecting model: ${modelName}`);
+      await updateModelParameters({ model: modelName });
+      console.log(`✅ Model selected successfully: ${modelName}`);
+      
+      // Dispatch custom event to notify other components
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('modelChanged', { detail: modelName }));
+      }
+    } catch (error) {
+      console.error('Error updating selected model:', error);
+      alert('Failed to update selected model');
+    }
+  };
+
   const formatSize = (bytes: number): string => {
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
     if (bytes === 0) return '0 B';
@@ -164,6 +184,104 @@ export function ModelManagementSettings() {
 
   return (
     <div className="space-y-6">
+      {/* Model Selection Section */}
+      <Card className="border-2 border-primary/20 bg-primary/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            🤖 Current AI Model
+          </CardTitle>
+          <CardDescription>
+            Select which AI model to use for generating responses. This model will be used for all new conversations.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Current Selection Display */}
+            <div>
+              <Label className="text-sm font-medium">Currently Selected:</Label>
+              <div className="mt-2 p-3 bg-background border rounded-lg flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {settings.defaultModel ? (
+                    <>
+                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                      <div>
+                        <p className="font-medium">{settings.defaultModel}</p>
+                        <p className="text-sm text-muted-foreground">Ready for chat</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="h-5 w-5 text-amber-500" />
+                      <div>
+                        <p className="font-medium text-amber-600">No model selected</p>
+                        <p className="text-sm text-muted-foreground">Please select a model to start chatting</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+                {settings.defaultModel && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    Active
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            {/* Model Selection Grid */}
+            {models.length > 0 && (
+              <div>
+                <Label className="text-sm font-medium">Select a Model:</Label>
+                <div className="mt-2 grid gap-2 max-h-48 overflow-y-auto">
+                  {models.map((model) => (
+                    <div
+                      key={model.name}
+                      className={`p-3 border rounded-lg cursor-pointer transition-all hover:border-primary/50 ${
+                        settings.defaultModel === model.name
+                          ? 'border-primary bg-primary/10 ring-1 ring-primary/20'
+                          : 'border-border hover:bg-muted/30'
+                      }`}
+                      onClick={() => handleModelSelection(model.name)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{model.name}</span>
+                            {settings.defaultModel === model.name && (
+                              <CheckCircle2 className="h-4 w-4 text-primary" />
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 mt-1">
+                            <Badge variant="outline" className="text-xs">
+                              {formatSize(model.size)}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              {model.details?.parameter_size || 'Unknown size'}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {formatDate(model.modified_at)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {models.length === 0 && !isLoading && (
+              <div className="text-center py-6 text-muted-foreground">
+                <Package className="h-8 w-8 mx-auto mb-2" />
+                <p>No models installed</p>
+                <p className="text-sm">Install models from the Models Library</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Separator />
+
       {/* Header with Actions */}
       <div className="flex items-center justify-between">
         <div>
@@ -203,7 +321,11 @@ export function ModelManagementSettings() {
       ) : (
         <div className="grid gap-4">
           {models.map((model) => (
-            <Card key={model.name} className="relative">
+            <Card key={model.name} className={`relative ${
+              settings.defaultModel === model.name 
+                ? 'ring-2 ring-primary/50 border-primary/50 bg-primary/5' 
+                : ''
+            }`}>
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3 flex-1">
@@ -217,6 +339,12 @@ export function ModelManagementSettings() {
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Package className="h-5 w-5" />
                         {model.name}
+                        {settings.defaultModel === model.name && (
+                          <Badge variant="default" className="bg-primary text-primary-foreground">
+                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                            Selected
+                          </Badge>
+                        )}
                       </CardTitle>
                       <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
@@ -232,6 +360,23 @@ export function ModelManagementSettings() {
                   </div>
                   
                   <div className="flex gap-2">
+                    {settings.defaultModel !== model.name ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleModelSelection(model.name)}
+                        title="Select this model for chat"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
+                      >
+                        <CheckCircle2 className="h-4 w-4 mr-1" />
+                        Select
+                      </Button>
+                    ) : (
+                      <Badge variant="secondary" className="px-3 py-1">
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        In Use
+                      </Badge>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"

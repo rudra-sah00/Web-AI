@@ -13,7 +13,7 @@ import PromptTemplates from "./components/PromptTemplates";
 // Import types and service
 import { Chat, Message } from "./components/types";
 import { ChatService } from "./utils/ChatService";
-import configService from "@/services/ConfigService";
+import modelSettingsService from "@/services/ModelSettingsService";
 
 interface ChatModuleProps {
   sidebarCollapsed: boolean;
@@ -34,30 +34,59 @@ export default function ChatModule({
   const [streamingMessage, setStreamingMessage] = useState('');
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [hasSelectedModel, setHasSelectedModel] = useState<boolean>(false);
+  const [hasSelectedModel, setHasSelectedModel] = useState<boolean>(false); // Start with false until checked
+  const [isCheckingModel, setIsCheckingModel] = useState<boolean>(true); // Add loading state for model check
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Check if a model is selected
-  const checkModelSelection = () => {
-    const settings = configService.getSettings();
-    const isModelSelected = Boolean(settings.defaultModel && settings.defaultModel !== null && settings.defaultModel !== "");
-    setHasSelectedModel(isModelSelected);
-    return isModelSelected;
+  const checkModelSelection = async () => {
+    try {
+      setIsCheckingModel(true);
+      // Small delay to ensure services are properly initialized
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const modelSettings = await modelSettingsService.getSettingsAsync();
+      const isModelSelected = Boolean(modelSettings.defaultModel && modelSettings.defaultModel.trim() !== "");
+      console.log('🔍 Model selection check:', {
+        defaultModel: modelSettings.defaultModel,
+        isModelSelected
+      });
+      setHasSelectedModel(isModelSelected);
+      return isModelSelected;
+    } catch (error) {
+      console.error('Error checking model selection:', error);
+      setHasSelectedModel(false);
+      return false;
+    } finally {
+      setIsCheckingModel(false);
+    }
   };
 
   // Check model selection on mount and when config changes
   useEffect(() => {
-    checkModelSelection();
+    // Initial check
+    const initCheck = async () => {
+      await checkModelSelection();
+    };
+    initCheck();
     
     // Listen for window focus to refresh model selection state
-    const handleFocus = () => {
-      checkModelSelection();
+    const handleFocus = async () => {
+      await checkModelSelection();
+    };
+    
+    // Listen for model change events
+    const handleModelChange = async (event: Event) => {
+      const customEvent = event as CustomEvent;
+      console.log(`🎯 Model changed event received: ${customEvent.detail}`);
+      await checkModelSelection();
     };
     
     window.addEventListener('focus', handleFocus);
+    window.addEventListener('modelChanged', handleModelChange);
     
     return () => {
       window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('modelChanged', handleModelChange);
     };
   }, []);
 
@@ -346,6 +375,30 @@ export default function ChatModule({
     handleSendMessage(promptText);
   };
 
+  // Loading screen component
+  const LoadingScreen = () => (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] p-8">
+      <div className="text-center space-y-6">
+        {/* Loading spinner */}
+        <div className="flex justify-center">
+          <div className="p-4 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/20 dark:to-blue-800/20">
+            <Loader2 className="h-12 w-12 text-blue-600 dark:text-blue-400 animate-spin" />
+          </div>
+        </div>
+        
+        {/* Loading message */}
+        <div className="space-y-2">
+          <h3 className="text-xl font-semibold text-foreground">
+            Loading AI Assistant...
+          </h3>
+          <p className="text-muted-foreground">
+            Initializing models and settings
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
   // Model selection prompt component
   const ModelSelectionPrompt = () => (
     <div className="flex flex-col items-center justify-center h-full p-8 max-w-4xl mx-auto">
@@ -421,7 +474,13 @@ export default function ChatModule({
         }`}
       >
         <div className="flex-1 overflow-y-auto bg-background animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {!hasSelectedModel ? <ModelSelectionPrompt /> : <WelcomeScreen />}
+          {isCheckingModel ? (
+            <LoadingScreen />
+          ) : !hasSelectedModel ? (
+            <ModelSelectionPrompt />
+          ) : (
+            <WelcomeScreen />
+          )}
         </div>
       </div>
     );

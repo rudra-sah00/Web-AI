@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import modelSettingsService from "@/services/ModelSettingsService";
 import { 
   Send, 
   Loader2, 
@@ -12,7 +13,8 @@ import {
   Paperclip,
   Code,
   Bold,
-  Italic
+  Italic,
+  AlertCircle
 } from "lucide-react";
 
 interface MessageInputProps {
@@ -30,12 +32,52 @@ export default function MessageInput({ onSendMessage, isLoading, disabled = fals
   const [speechRecognition, setSpeechRecognition] = useState<SpeechRecognition | null>(null);
   const [showFormatting, setShowFormatting] = useState(false);
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
+  const [hasSelectedModel, setHasSelectedModel] = useState<boolean>(false); // Start with false, will be updated after async check
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isDisabled = isLoading || disabled;
 
   // Initialize speech recognition
   useEffect(() => {
+    // Check if model is selected
+    const checkModelSelection = async () => {
+      try {
+        const modelSettings = await modelSettingsService.getSettingsAsync();
+        const isModelSelected = Boolean(modelSettings.defaultModel && modelSettings.defaultModel.trim() !== "");
+        console.log(`🎯 MessageInput model selection check: ${isModelSelected ? 'YES' : 'NO'} (model: ${modelSettings.defaultModel})`);
+        setHasSelectedModel(isModelSelected);
+        return isModelSelected;
+      } catch (error) {
+        console.error('Error checking model selection in MessageInput:', error);
+        setHasSelectedModel(false);
+        return false;
+      }
+    };
+
+    // Initial check
+    const initCheck = async () => {
+      // Small delay to ensure services are properly initialized
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await checkModelSelection();
+    };
+    
+    initCheck();
+
+    // Listen for window focus to refresh model selection state
+    const handleFocus = async () => {
+      await checkModelSelection();
+    };
+    
+    // Listen for model change events
+    const handleModelChange = async (event: Event) => {
+      const customEvent = event as CustomEvent;
+      console.log(`🎯 MessageInput received model change event: ${customEvent.detail}`);
+      await checkModelSelection();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('modelChanged', handleModelChange);
+
     if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognition = new SpeechRecognition();
@@ -65,6 +107,8 @@ export default function MessageInput({ onSendMessage, isLoading, disabled = fals
     }
 
     return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('modelChanged', handleModelChange);
       if (speechRecognition) {
         speechRecognition.stop();
       }
@@ -80,6 +124,12 @@ export default function MessageInput({ onSendMessage, isLoading, disabled = fals
 
   const handleSendMessage = () => {
     if (!message.trim() || isLoading) return;
+    
+    // Check if model is selected before sending
+    if (!hasSelectedModel) {
+      console.warn('No model selected - message sending blocked');
+      return;
+    }
     
     // Prepare the final message
     let finalMessage = message;
@@ -244,7 +294,9 @@ export default function MessageInput({ onSendMessage, isLoading, disabled = fals
               ) : (
                 <Mic className="h-3 w-3" />
               )}
-            </Button>              <Button
+            </Button>
+              
+              <Button
                 variant="ghost"
                 size="sm"
                 className={cn(
@@ -288,7 +340,9 @@ export default function MessageInput({ onSendMessage, isLoading, disabled = fals
                 onKeyDown={handleKeyDown}
                 placeholder={
                   placeholder ||
-                  (isDisabled 
+                  (!hasSelectedModel
+                    ? "Please select a model in Settings → Model Selection to start chatting"
+                    : isDisabled 
                     ? "Waiting for response..." 
                     : webSearchEnabled 
                       ? "Ask with web search enabled..." 
@@ -301,7 +355,7 @@ export default function MessageInput({ onSendMessage, isLoading, disabled = fals
                   maxHeight: '120px',
                   lineHeight: '1.5'
                 }}
-                disabled={isDisabled}
+                disabled={isDisabled || !hasSelectedModel}
               />
             </div>
 
@@ -309,14 +363,15 @@ export default function MessageInput({ onSendMessage, isLoading, disabled = fals
             <div className="pb-1">
               <Button 
                 onClick={handleSendMessage} 
-                disabled={!message.trim() || isDisabled} 
+                disabled={!message.trim() || isDisabled || !hasSelectedModel} 
                 size="sm"
                 className={cn(
                   "h-7 w-7 p-0 rounded-full transition-all duration-300 ease-in-out",
-                  !message.trim() || isDisabled 
+                  !message.trim() || isDisabled || !hasSelectedModel
                     ? "bg-muted text-muted-foreground cursor-not-allowed" 
                     : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
                 )}
+                title={!hasSelectedModel ? "Please select a model in Settings → Model Selection" : undefined}
               >
                 {isLoading ? (
                   <Loader2 className="h-3 w-3 animate-spin" />
@@ -334,6 +389,16 @@ export default function MessageInput({ onSendMessage, isLoading, disabled = fals
             <div className="flex items-center justify-center mt-2 text-sm text-green-400 animate-in fade-in slide-in-from-bottom-2 duration-200">
               <span className="inline-block h-2 w-2 rounded-full bg-green-500 mr-2"></span>
               Web search enabled for this message
+            </div>
+          </div>
+        )}
+        
+        {/* Model selection warning */}
+        {!hasSelectedModel && (
+          <div className="max-w-3xl mx-auto px-4">
+            <div className="flex items-center justify-center mt-2 text-sm text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-3">
+              <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span>Please select a model in Settings → Model Selection to start chatting</span>
             </div>
           </div>
         )}

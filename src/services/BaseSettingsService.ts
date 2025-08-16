@@ -3,30 +3,56 @@ export class BaseSettingsService<T> {
   private settings: T;
   private readonly fileName: string;
   private subscribers: Array<(settings: T) => void> = [];
+  private isLoading: boolean = false;
+  private loadPromise: Promise<void> | null = null;
 
   constructor(defaultSettings: T, fileName: string) {
-    this.settings = defaultSettings;
+    this.settings = { ...defaultSettings };
     this.fileName = fileName;
-    this.loadSettings();
+    this.loadPromise = this.loadSettings();
+  }
+
+  // Ensure settings are loaded before use
+  async ensureLoaded(): Promise<void> {
+    if (this.loadPromise) {
+      await this.loadPromise;
+      this.loadPromise = null;
+    }
   }
 
   // Load settings from the API/JSON file
   private async loadSettings(): Promise<void> {
+    if (this.isLoading) return;
+    this.isLoading = true;
+    
     try {
+      // Only fetch in browser context
+      if (typeof window === 'undefined') {
+        return;
+      }
+      
       const response = await fetch(`/api/settings/${this.fileName}`);
       if (response.ok) {
         const data = await response.json();
         this.settings = { ...this.settings, ...data };
+        console.log(`✅ Loaded ${this.fileName} settings:`, this.settings);
         this.notifySubscribers();
       }
     } catch (error) {
       console.error(`Error loading ${this.fileName} settings:`, error);
+    } finally {
+      this.isLoading = false;
     }
   }
 
   // Save settings to the API/JSON file
   private async saveSettings(): Promise<boolean> {
     try {
+      // Only fetch in browser context
+      if (typeof window === 'undefined') {
+        return false;
+      }
+      
       const response = await fetch(`/api/settings/${this.fileName}`, {
         method: 'POST',
         headers: {
@@ -65,6 +91,12 @@ export class BaseSettingsService<T> {
 
   // Get current settings
   getSettings(): T {
+    return this.settings;
+  }
+
+  // Get settings with loading guarantee
+  async getSettingsAsync(): Promise<T> {
+    await this.ensureLoaded();
     return this.settings;
   }
 

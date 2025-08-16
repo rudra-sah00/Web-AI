@@ -6,6 +6,6 @@
   "showTimestamps": false,
   "enableMarkdown": true,
   "enableCodeHighlighting": true,
-  "defaultSystemPrompt": "You are a helpful AI assistant. Be concise and accurate in your responses.",
+  "defaultSystemPrompt": "You are a helpful AI assistant. Be concise and accurate in your responses.a",
   "webSearchEnabled": false
 }

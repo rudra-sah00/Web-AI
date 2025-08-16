@@ -47,20 +47,6 @@ export function ChatSettings() {
               onCheckedChange={() => toggleSetting('streamResponses')}
             />
           </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="web-search">Web Search</Label>
-              <p className="text-sm text-muted-foreground">
-                Enable web search integration for current information
-              </p>
-            </div>
-            <Switch
-              id="web-search"
-              checked={settings.webSearchEnabled}
-              onCheckedChange={() => toggleSetting('webSearchEnabled')}
-            />
-          </div>
         </CardContent>
       </Card>
 

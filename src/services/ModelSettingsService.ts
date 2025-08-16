@@ -7,7 +7,7 @@ const DEFAULT_MODEL_SETTINGS: ModelSettings = {
   defaultTemperature: 0.7,
   defaultTopP: 0.9,
   defaultMaxTokens: 2048,
-  defaultModel: 'llama3.2:latest',
+  defaultModel: '', // No default model - user must select one
   ollamaEndpoint: 'http://localhost:11434',
   ollamaApiKey: undefined,
 };
@@ -21,6 +21,17 @@ class ModelSettingsService extends BaseSettingsService<ModelSettings> {
   // Get model parameters
   getModelParameters() {
     const settings = this.getSettings();
+    return {
+      temperature: settings.defaultTemperature,
+      top_p: settings.defaultTopP,
+      max_tokens: settings.defaultMaxTokens,
+      model: settings.defaultModel
+    };
+  }
+
+  // Get model parameters with loading guarantee
+  async getModelParametersAsync() {
+    const settings = await this.getSettingsAsync();
     return {
       temperature: settings.defaultTemperature,
       top_p: settings.defaultTopP,
@@ -93,3 +104,9 @@ export function useModelSettings() {
 }
 
 export default modelSettingsService;
+
+// Export additional async helpers
+export const getModelAsync = async (): Promise<string> => {
+  const settings = await modelSettingsService.getSettingsAsync();
+  return settings.defaultModel || '';
+};
